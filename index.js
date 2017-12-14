@@ -1,6 +1,7 @@
 const { MessengerBot } = require('bottender');
 const { createServer } = require('bottender/express');
 
+const PORT = process.env.PORT || 5000;
 const config = require('./bottender.config.js').messenger;
 
 const bot = new MessengerBot({
@@ -19,6 +20,6 @@ const server = createServer(bot, {
   verifyToken: process.env.verifyToken ? process.env.verifyToken: config.verifyToken,
 });
 
-server.listen(5000, () => {
-  console.log('server is running on 5000 port...');
+server.listen(PORT, () => {
+  console.log(`server is running on ${PORT} port...`);
 });
