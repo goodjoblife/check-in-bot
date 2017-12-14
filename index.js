@@ -4,8 +4,8 @@ const { createServer } = require('bottender/express');
 const config = require('./bottender.config.js').messenger;
 
 const bot = new MessengerBot({
-  accessToken: config.accessToken,
-  appSecret: config.appSecret,
+  accessToken: process.env.accessToken ? process.env.accessToken: config.accessToken,
+  appSecret: process.env.appSecret ? process.env.appSecret: config.appSecret,
 });
 
 bot.onEvent(async context => {
@@ -16,7 +16,7 @@ bot.onEvent(async context => {
 });
 
 const server = createServer(bot, {
-  verifyToken: config.verifyToken,
+  verifyToken: process.env.verifyToken ? process.env.verifyToken: config.verifyToken,
 });
 
 server.listen(5000, () => {
