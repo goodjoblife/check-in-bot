@@ -11,6 +11,26 @@ const bot = new MessengerBot({
   sessionStore: new MongoSessionStore(MONGODB_URI),
 });
 
+const quickReply = {
+  quick_replies: [
+    {
+      content_type: 'text',
+      title: '做功德',
+      payload: 'CHECK_IN',
+    },
+    {
+      content_type: 'text',
+      title: '不做了',
+      payload: 'CHECK_OUT',
+    },
+    {
+      content_type: 'location',
+      title: '傳送位置',
+      payload: 'SEND_LOCATION',
+    },
+  ],
+};
+
 bot.setInitialState({
   working: false,
   startTime: null,
@@ -19,24 +39,23 @@ bot.setInitialState({
 
 bot.onEvent(async context => {
   if (context.event.isText) {
-    console.log(context.event.text);
+    console.log(context.event);
     switch (context.event.text) {
-      case 'in':
+      case '做功德':
         if (context.state.working) {
-          await context.sendText('You have already check in');
+          await context.sendText('You have already check in', quickReply);
         } else {
           context.setState({ working: true, startTime: new Date() });
-          await context.sendText('Check in');
+          await context.sendText('哈庫納罵踏踏！！ 你的功德正在源源不絕地產生中，你感覺到了嗎？', quickReply);
         }
         break;
-      case 'out':
+      case '不做了':
         if (context.state.working) {
           context.setState({ working: false, startTime: context.state.startTime, endTime: new Date() });
-          console.log(context._session._id);
           const time = context.state.endTime - context.state.startTime;
-          await context.sendText(`Check out: ${time}`);
+          await context.sendText(`你今天總共生產了${time}單位的功德，台灣因為有你的功德而美好。休息一下，明天再來吧。所有功德已存到台灣海量功德大數據資料庫。`, quickReply);
         } else {
-          await context.sendText('You havent check in');
+          await context.sendText('You havent check in', quickReply);
         }
         break;
       default:
