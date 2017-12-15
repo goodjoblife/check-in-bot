@@ -11,6 +11,8 @@ const bot = new MessengerBot({
   sessionStore: new MongoSessionStore(MONGODB_URI),
 });
 
+const { getLocation, getTimeStamp, getImageUrl } = require('./utils');
+
 const quickReply = {
   quick_replies: [
     {
@@ -38,6 +40,7 @@ bot.setInitialState({
 });
 
 bot.onEvent(async context => {
+  console.log(context._session._id);
   if (context.event.isText) {
     console.log('isText:', context.event.text);
     switch (context.event.text) {
@@ -61,26 +64,13 @@ bot.onEvent(async context => {
       default:
         await context.sendText(`${context.event.text}`);
     }
-  } else if (context.event.isLocation) {
-    console.log('isLocation:', context.event);
-    if (context.event.hasAttachment) {
-      console.log('location:', context.event.attachments[0].payload.coordinates);
-    }
+  } else if (context.event.isLocation && context.event.hasAttachment) {
+    console.log('isLocation && hasAttachments:', getLocation(context), getTimeStamp(context));
   } else if (context.event.isPostback) {
     console.log('isPostback:', context.event.postback);
-  } else if (context.event.isImage) {
-    console.log('isImage:', context.event);
-    if (context.event.hasAttachment) {
-      console.log('imgUrl:', context.event.attachments[0].payload.url);
-    }
+  } else if (context.event.isImage && context.event.hasAttachment) {
+    console.log('isImage:', getImageUrl(context));
   }
-  if (context.event.hasAttachment) {
-    console.log('hasAttachment:', context.event.attachments);
-  }
-  if (context.event.isPayload) {
-    console.log('isPayload:', context.event.payload);
-  }
-
 });
 
 const server = createServer(bot, {
