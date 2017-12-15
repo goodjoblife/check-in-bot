@@ -68,6 +68,13 @@ bot.onEvent(async context => {
   } else if (context.event.isImage) {
     console.log('isImage:', context.event);
   }
+  if (context.event.hasAttachment) {
+    console.log('hasAttachment:', context.event.attachments);
+  }
+  if (context.event.isPayload) {
+    console.log('isPayload:', context.event.payload);
+  }
+
 });
 
 const server = createServer(bot, {
