@@ -63,10 +63,16 @@ bot.onEvent(async context => {
     }
   } else if (context.event.isLocation) {
     console.log('isLocation:', context.event);
+    if (context.event.hasAttachment) {
+      console.log('location:', context.event.attachments[0].payload.coordinates);
+    }
   } else if (context.event.isPostback) {
     console.log('isPostback:', context.event.postback);
   } else if (context.event.isImage) {
     console.log('isImage:', context.event);
+    if (context.event.hasAttachment) {
+      console.log('imgUrl:', context.event.attachments[0].payload.url);
+    }
   }
   if (context.event.hasAttachment) {
     console.log('hasAttachment:', context.event.attachments);
