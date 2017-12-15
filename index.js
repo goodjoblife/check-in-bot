@@ -34,9 +34,12 @@ const quickReply = {
 };
 
 bot.setInitialState({
-  working: false,
+  isWorking: false,
   startTime: null,
   endTime: null,
+  location: null,
+  locationTimestamp: null,
+  imgUrls: [],
 });
 
 bot.onEvent(async context => {
@@ -45,16 +48,18 @@ bot.onEvent(async context => {
     console.log('isText:', context.event.text);
     switch (context.event.text) {
       case '做功德':
-        if (context.state.working) {
-          await context.sendText('You have already check in', quickReply);
+        if (context.state.isWorking) {
+          await context.sendText('你已經在做功德了！', quickReply);
         } else {
-          context.setState({ working: true, startTime: new Date() });
+          context.setState({ isWorking: true, startTime: new Date() });
+          console.log('after setting state:', context.state);
           await context.sendText('哈庫納罵踏踏！！ 你的功德正在源源不絕地產生中，你感覺到了嗎？', quickReply);
         }
         break;
       case '不做了':
-        if (context.state.working) {
-          context.setState({ working: false, startTime: context.state.startTime, endTime: new Date() });
+        if (context.state.isWorking) {
+          context.setState({ isWorking: false, endTime: new Date() });
+          console.log('after setting state:', context.state);
           const time = context.state.endTime - context.state.startTime;
           await context.sendText(`你今天總共生產了${time}單位的功德，台灣因為有你的功德而美好。休息一下，明天再來吧。所有功德已存到台灣海量功德大數據資料庫。`, quickReply);
         } else {
@@ -66,10 +71,18 @@ bot.onEvent(async context => {
     }
   } else if (context.event.isLocation && context.event.hasAttachment) {
     console.log('isLocation && hasAttachments:', getLocation(context), getTimeStamp(context));
+    if (context.state.isWorking) {
+      context.setState({ location: getLocation(context), locationTimestamp: getTimeStamp(context)});
+      console.log('after setting state:', context.state);
+    }
   } else if (context.event.isPostback) {
     console.log('isPostback:', context.event.postback);
   } else if (context.event.isImage && context.event.hasAttachment) {
-    console.log('isImage:', getImageUrl(context));
+    console.log('isImage:', getImageUrl(context), getTimeStamp(context));
+    if (context.isWorking) {
+      context.setState({ imgUrls: context.state.imgUrls.concat([getImageUrl(context)]) });
+      console.log('after setting state:', context.state);
+    }
   }
 });
 
