@@ -39,7 +39,7 @@ bot.setInitialState({
 
 bot.onEvent(async context => {
   if (context.event.isText) {
-    console.log(context.event);
+    console.log('isText:', context.event.text);
     switch (context.event.text) {
       case '做功德':
         if (context.state.working) {
@@ -61,6 +61,12 @@ bot.onEvent(async context => {
       default:
         await context.sendText(`${context.event.text}`);
     }
+  } else if (context.event.isLocation) {
+    console.log('isLocation:', context.event);
+  } else if (context.event.isPostback) {
+    console.log('isPostback:', context.event.postback);
+  } else if (context.event.isImage) {
+    console.log('isImage:', context.event);
   }
 });
 
