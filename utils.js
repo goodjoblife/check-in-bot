@@ -37,9 +37,33 @@ function getImageUrl(context) {
     return null;
 }
 
+function calcTime(ms) {
+    let secs = Math.round(ms / 1000);
+    let mins = Math.floor(secs / 60);
+    secs = secs % 60;
+    let hrs = Math.floor(mins / 60);
+    mins = mins % 60;
+    return { hrs, mins, secs };
+}
+
+function formatTime(timeObj) {
+    let str = '';
+    if (hrs === 0 && mins === 0) {
+        return '不到一分鐘';
+    }
+    if (hrs > 0) {
+        str = `${hrs}小時`;
+    }
+    if (mins > 0) {
+        str = `${str} ${mins}分鐘`;
+    }
+    return str;
+}
 
 module.exports = {
     getLocation,
     getTimeStamp,
     getImageUrl,
+    calcTime,
+    formatTime,
 }
