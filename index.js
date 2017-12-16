@@ -61,18 +61,19 @@ async function main() {
   });
 
   bot.onEvent(async context => {
-
+    console.log(context.event);
+    // handle welcome message
     if (context.event.isPostback) {
       console.log('isPostback:', context.event.postback);
-      // handle welcome message
       if (context.event.postback.payload === 'GET_STARTED') {
         context.resetState();
         await context.sendText('歡迎使用功德無量打卡機，這是一款協助你紀錄工時、製造無量功德的打卡機器人。');
-        await context.sendText('使用方式非常簡單，只要輸入「做功德」或「上班」，就會開始幫你紀錄那源源不絕的功德數。 再輸入「不做了」或「下班」，就會截止計算。');
-        await context.sendText('在上班的過程中，你可以記錄你工作的地點、並上傳可以證明你在工作的照片。未來若發生超時工作、加班未給加班費或補休等違法的狀況，將有助於你進行檢舉。');
+        await context.sendText('- 輸入「做功德」或「上班」，就會開始幫你計算工時。\n- 再輸入「不做了」或「下班」，就會截止計算。');
+        await context.sendText('在上班的過程中，你可以記錄你工作的地點、並上傳可以證明你在工作的照片。\n\n未來若發生超時工作、加班未給加班費或補休等違法的狀況，將有助於你進行檢舉。');
         await context.sendText('馬上就來使用看看吧！', genQuickReply(['CHECK_IN']));
       }
-    } else if (context.event.isText) {
+    }
+    if (context.event.isText) {
       console.log('isText:', context.event.text);
       // hanlde general text message
       switch (context.event.text) {
@@ -138,7 +139,7 @@ async function main() {
         console.log('after setting state:', context.state);
 
         if (!context.state.location) {
-          await context.sendText('感謝大大無私奉獻，需要上傳更多張也沒問題！ 然後，不如再按下 “Send Location” 傳送你的位置吧！', genQuickReply(['SEND_LOCATION','CHECK_OUT']));
+          await context.sendText('感謝大大無私奉獻，需要上傳更多張也沒問題！\n然後，不如再按下 “Send Location” 傳送你的位置吧！', genQuickReply(['SEND_LOCATION','CHECK_OUT']));
         } else {
           await context.sendText('感謝大大無私奉獻！ 能證明你在工作的照片已儲存，需要上傳更多張也沒問題！', genQuickReply(['CHECK_OUT']));
         }

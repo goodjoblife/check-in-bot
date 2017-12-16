@@ -48,6 +48,7 @@ function calcTime(ms) {
 
 function formatTime(timeObj) {
     let str = '';
+    const { hrs, mins, secs } = timeObj;
     if (hrs === 0 && mins === 0) {
         return '不到一分鐘';
     }
