@@ -19,21 +19,21 @@ function genQuickReply(payloads) {
       case 'CHECK_IN':
         qrs.push({
           content_type: 'text',
-          title: '做功德',
+          title: '做功德',
           payload: 'CHECK_IN',
         });
         break;
       case 'CHECK_OUT':
         qrs.push({
           content_type: 'text',
-          title: '不做了',
+          title: '不做了',
           payload: 'CHECK_OUT',
         });
         break;
       case 'SEND_LOCATION':
         qrs.push({
           content_type: 'location',
-          title: '傳送位置',
+          title: '傳送位置',
           payload: 'SEND_LOCATION',
         });
         break;
@@ -61,7 +61,8 @@ async function main() {
   });
 
   bot.onEvent(async context => {
-    console.log(context.event);
+    console.log('context:', context);
+    console.log('rawEvent:', context.event._rawEvent);
     // handle welcome message
     if (context.event.isPostback) {
       console.log('isPostback:', context.event.postback);
