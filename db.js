@@ -19,7 +19,7 @@ async function insertCheckIn(db, checkIn) {
     if (!checkIn.userId || !checkIn.startTime || !checkIn.endTime) { return; }
     if (checkIn.location) {
         if (!checkIn.locationTimestamp) { return; }
-        if (!checkIn.location.lat || checkIn.location.long) { return; }
+        if (!checkIn.location.lat || !checkIn.location.long) { return; }
     }
     // insert to db
     const result = await db.collection('checkIns').insert(checkIn);
