@@ -14,6 +14,7 @@
 async function insertCheckIn(db, checkIn) {
     // data validation
     // TODO: throw error
+    console.log('checkin:', checkIn);
     if (!checkIn) { return; }
     if (!checkIn.userId || !checkIn.startTime || !checkIn.endTime) { return; }
     if (checkIn.location) {
