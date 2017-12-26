@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "bottender": "0.14.9",
+    "express-mongo-db": "^2.0.3",
     "lodash": "^4.17.4",
     "mongodb": "2.2.33",
     "ngrok": "^2.2.24"

@@ -13,6 +13,12 @@ const { prepareCheckIn } = require('./models');
 const { insertCheckIn } = require('./db');
 const P = require('./constants').PAYLOADS;
 
+// connection to mongodb for backend
+const expressMongoDb = require("express-mongo-db");
+
+// import backend routes
+const routes = require('./api');
+
 function genQuickReply(payloads) {
   const qrs = [];
   payloads.forEach((p) => {
@@ -159,6 +165,9 @@ async function main() {
   const server = createServer(bot, {
     verifyToken: process.env.verifyToken || config.verifyToken,
   });
+
+  server.use(expressMongoDb(MONGODB_URI));
+  server.use('/api', routes);
 
   server.listen(PORT, () => {
     console.log(`server is running on ${PORT} port...`);

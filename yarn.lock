@@ -1007,6 +1007,12 @@ expand-range@^1.8.1:
   dependencies:
     fill-range "^2.1.0"
 
+express-mongo-db@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/express-mongo-db/-/express-mongo-db-2.0.3.tgz#70a97f8594afdf12736f73e1a151c3f2f4569783"
+  dependencies:
+    mongodb "^2.0.39"
+
 express@^4.16.2:
   version "4.16.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.16.2.tgz#e35c6dfe2d64b7dca0a5cd4f21781be3299e076c"
@@ -2270,7 +2276,7 @@ mongodb-core@2.1.17:
     bson "~1.0.4"
     require_optional "~1.0.0"
 
-mongodb@2.2.33, mongodb@^2.2.33:
+mongodb@2.2.33, mongodb@^2.0.39, mongodb@^2.2.33:
   version "2.2.33"
   resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.33.tgz#b537c471d34a6651b48f36fdbf29750340e08b50"
   dependencies:
