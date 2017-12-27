@@ -9,4 +9,11 @@ router.get('/:id', async(req, res) => {
     res.send(result);
 })
 
+router.get('/', async(req, res) => {
+    const db = req.db.collection('checkIns');
+    const result = await db.find().toArray();
+    res.send(result);
+})
+
+
 module.exports = router;
