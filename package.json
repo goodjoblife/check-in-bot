@@ -4,20 +4,34 @@
   "private": true,
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "eslint \"./**/*.js\"",
+    "lint:fix": "npm run lint -- --fix",
+    "precommit": "lint-staged"
   },
   "dependencies": {
     "bottender": "0.14.9",
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",
     "lodash": "^4.17.4",
-    "mongodb": "2.2.33",
-    "ngrok": "^2.2.24"
+    "mongodb": "2.2.33"
   },
   "devDependencies": {
-    "nodemon": "^1.12.5"
+    "eslint": "^4.14.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.4.0",
+    "lint-staged": "^6.0.0",
+    "ngrok": "^2.2.24",
+    "nodemon": "^1.12.5",
+    "prettier": "^1.9.2"
   },
   "engines": {
     "node": ">= 7.6.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
