@@ -1,11 +1,15 @@
 const { MessengerBot, MongoSessionStore } = require('bottender');
 const { createServer } = require('bottender/express');
 const MongoClient = require('mongodb').MongoClient;
+const cors = require("cors");
 
 // read configs
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/checkin';
 const config = require('./bottender.config.js').messenger;
+const PORT = process.env.PORT || 5000;
+const CORS_ANY = process.env.CORS_ANY || false;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/checkin';
+const ACCESS_TOKEN = process.env.accessToken || config.accessToken;
+const APP_SECRET = process.env.appSecret || config.appSecret;
 
 // import self-defined functions and constants
 const { getLocation, getTimeStamp, getImageUrl, calcTime, formatTime } = require('./utils');
@@ -54,8 +58,8 @@ function genQuickReply(payloads) {
 async function main() {
   const db = await MongoClient.connect(MONGODB_URI); //TODO: close it
   const bot = new MessengerBot({
-    accessToken: process.env.accessToken || config.accessToken,
-    appSecret: process.env.appSecret || config.appSecret,
+    accessToken: ACCESS_TOKEN,
+    appSecret: APP_SECRET,
     sessionStore: new MongoSessionStore(MONGODB_URI),
   });
   bot.setInitialState({
@@ -166,6 +170,18 @@ async function main() {
     verifyToken: process.env.verifyToken || config.verifyToken,
   });
 
+  // set CORS
+  if (CORS_ANY) {
+    server.use(cors());
+  } else {
+    server.use(
+      cors({
+        origin: [/\.goodjob\.life$/, /goodjoblife.github.io$/, /localhost/],
+      })
+    );
+  }
+
+  // setup api
   server.use(expressMongoDb(MONGODB_URI));
   server.use('/api', routes);
 
