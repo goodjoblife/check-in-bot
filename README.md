@@ -1,52 +1,28 @@
-This project was bootstrapped with
-[Bottender](https://github.com/Yoctol/bottender) init script.
+## 功德無量打卡機
+這是一款協助你紀錄工時、搜集勞檢證據，同時製造無量功德的 facebook messenger 機器人。 這款機器人是基於 [bottender](https://github.com/Yoctol/bottender) 開發而成的。
 
-## Sending Feedback
+## 功能
+1. 紀錄上下班時間、計算工時
+2. 傳送 GPS 位置
+3. 上傳圖片
 
-Always feel free to open issue to
-[Bottender](https://github.com/Yoctol/bottender/issues).
+## How to run the messenger bot ?
+請查看這一份教學[手把手帶你建置一個 messenger bot](https://github.com/goodjoblife/check-in-bot/wiki/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%B6%E4%BD%A0%E5%BB%BA%E7%BD%AE%E4%B8%80%E5%80%8B-messenger-%E8%81%8A%E5%A4%A9%E6%A9%9F%E5%99%A8%E4%BA%BA)
 
-## Folder Structure
-
-After creation, your project should look like this:
-
-```
-my-bot/
-  .gitignore
-  node_modules/
-  bottender.config.js
-  index.js
-  package.json
-  README.md
-  yarn.lock
-```
-
-### index.js
-
-All functionalities start from here.\
-Mainly it's a server which listen on port 5000. You are encouraged to add more [event listener](https://bottender.js.org/docs/APIReference-Event)
-and [handler](https://bottender.js.org/docs/APIReference-Handler) to enrich the bot.
-
-See more examples, please refer to
-[Bottender examples](https://github.com/Yoctol/bottender/tree/master/examples).
-
-### bottender.config.js
-
-The config file for the bot.\
-We suggests you to put all platform configs into this file and use it as a parameter
-of createServer.
-
-## Available Scripts
-
-There are two default scripts you can run:
+## Available Scripts 
 
 ### `npm run dev`
 
 Run the bot in the development mode.\
 It will automatically restart the bot if there are any changes in `index.js`.\
-For more information, check [nodemon's repo](https://github.com/remy/nodemon)
 
 ### `npm start`
 
 Run the bot without being monitored.\
 The bot won't be restarted when you change anything in `index.js`
+
+
+## Sending Feedback
+
+Always feel free to open issue to
+[check-in-bot](https://github.com/goodjoblife/check-in-bot/).
