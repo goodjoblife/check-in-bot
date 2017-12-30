@@ -11,16 +11,16 @@
  * @param {String} checkIn.imgUrls[i]
  */
 function prepareCheckIn(userId, state) {
-    return {
-        userId,
-        startTime: state.startTime,
-        endTime: state.endTime,
-        location: state.location,
-        locationTimestamp: state.locationTimestamp,
-        imgUrls: state.imgUrls,
-    };
+  return {
+    userId,
+    startTime: state.startTime,
+    endTime: state.endTime,
+    location: state.location,
+    locationTimestamp: state.locationTimestamp,
+    imgUrls: state.imgUrls,
+  };
 }
 
 module.exports = {
-    prepareCheckIn,
-}
+  prepareCheckIn,
+};
