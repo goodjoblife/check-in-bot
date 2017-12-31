@@ -239,7 +239,7 @@ async function main() {
   });
 
   const server = createServer(bot, {
-    verifyToken: process.env.verifyToken || config.verifyToken,
+    verifyToken: config.VERIFY_TOKEN,
   });
 
   // set CORS
