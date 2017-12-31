@@ -1,8 +1,10 @@
+const config = require("config");
+
 module.exports = {
   messenger: {
-    accessToken: "__accessToken__",
-    verifyToken: "__verifyToken__",
-    appId: "__appId__",
-    appSecret: "__appSecret__",
+    accessToken: config.ACCESS_TOKEN,
+    verifyToken: config.VERIFY_TOKEN,
+    appId: config.APP_ID,
+    appSecret: config.APP_SECRET,
   },
 };
