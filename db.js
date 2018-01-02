@@ -1,3 +1,6 @@
+
+const { genRandomStr } = require('./utils');
+
 /**
  * @param {Object} checkIn
  * @param {String} checkIn.userId
@@ -33,6 +36,30 @@ async function insertCheckIn(db, checkIn) {
   console.log("insertCheckIn result:", result);
 }
 
+/**
+ * Generate a url key for users to access their working time
+ * This is a temporal solution for user login
+ * @param {*} db
+ * @param {*} userId
+ */
+async function findOrCreateUserUrlKey(db, userId) {
+  const users = db.collection("users");
+  const r1 = await users.findOne({ _id: userId });
+  if (r1) {
+    return r1.urlKey;
+  } else {
+    const randStr = genRandomStr(20);
+    console.log(randStr);
+    const result = await db.collection("users").insertOne({
+      _id: userId,
+      urlKey: randStr,
+    })
+    console.log('create a new user, result:', result);
+    return randStr;
+  }
+}
+
 module.exports = {
   insertCheckIn,
+  findOrCreateUserUrlKey,
 };
