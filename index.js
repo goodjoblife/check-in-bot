@@ -16,7 +16,7 @@ const {
   formatTime,
 } = require("./utils");
 const { prepareCheckIn } = require("./models");
-const { insertCheckIn } = require("./db");
+const { insertCheckIn, findOrCreateUserUrlKey } = require("./db");
 const P = require("./constants").PAYLOADS;
 
 // connection to mongodb for backend
@@ -50,6 +50,12 @@ function genQuickReply(payloads) {
           payload: P.SEND_LOCATION,
         });
         break;
+      case P.VIEW_WORKING_TIME:
+        qrs.push({
+          content_type: "text",
+          title: "查看我的功德",
+          payload: P.VIEW_WORKING_TIME,
+        });
       default:
         break;
     }
@@ -173,7 +179,7 @@ async function main() {
           );
           await context.sendText(
             "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
-            genQuickReply([P.CHECK_IN])
+            genQuickReply([P.VIEW_WORKING_TIME, P.CHECK_IN])
           );
 
           // reset state
@@ -184,6 +190,20 @@ async function main() {
             genQuickReply([P.CHECK_IN])
           );
         }
+      } else if (
+        ["查看我的功德", "查看我的工時"].indexOf(text) >= 0 ||
+        postbackPayload === P.VIEW_WORKING_TIME
+      ) {
+        const userId = context._session._id;
+        const urlKey = await findOrCreateUserUrlKey(db, userId);
+        const url = `https://goodjoblife.github.io/check-in-frontend/${urlKey}`;
+        context.sendButtonTemplate("查看我的功德", [
+          {
+            type: "web_url",
+            url,
+            title: "馬上查看",
+          },
+        ]);
       } else if (text) {
         context.sendText(`${context.event.text}`);
       }

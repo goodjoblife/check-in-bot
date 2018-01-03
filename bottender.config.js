@@ -34,6 +34,11 @@ module.exports = {
                   type: "postback",
                   payload: "CHECK_OUT",
                 },
+                {
+                  title: "查看我的功德",
+                  type: "postback",
+                  payload: "VIEW_WORKING_TIME",
+                },
               ],
             },
             {
