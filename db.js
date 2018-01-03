@@ -1,5 +1,4 @@
-
-const { genRandomStr } = require('./utils');
+const { genRandomStr } = require("./utils");
 
 /**
  * @param {Object} checkIn
@@ -53,8 +52,8 @@ async function findOrCreateUserUrlKey(db, userId) {
     const result = await db.collection("users").insertOne({
       _id: userId,
       urlKey: randStr,
-    })
-    console.log('create a new user, result:', result);
+    });
+    console.log("create a new user, result:", result);
     return randStr;
   }
 }

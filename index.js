@@ -21,10 +21,7 @@ const {
   formatTime,
 } = require("./utils");
 const { prepareCheckIn } = require("./models");
-const {
-  insertCheckIn,
-  findOrCreateUserUrlKey,
-} = require("./db");
+const { insertCheckIn, findOrCreateUserUrlKey } = require("./db");
 const P = require("./constants").PAYLOADS;
 
 // connection to mongodb for backend
@@ -63,7 +60,7 @@ function genQuickReply(payloads) {
           content_type: "text",
           title: "查看我的功德",
           payload: P.VIEW_WORKING_TIME,
-        })
+        });
       default:
         break;
     }
@@ -205,11 +202,13 @@ async function main() {
         const userId = context._session._id;
         const urlKey = await findOrCreateUserUrlKey(db, userId);
         const url = `https://goodjoblife.github.io/check-in-frontend/${urlKey}`;
-        context.sendButtonTemplate('查看我的功德', [{
-          type: 'web_url',
-          url,
-          title: '馬上查看',
-        }]);
+        context.sendButtonTemplate("查看我的功德", [
+          {
+            type: "web_url",
+            url,
+            title: "馬上查看",
+          },
+        ]);
       } else if (text) {
         context.sendText(`${context.event.text}`);
       }
