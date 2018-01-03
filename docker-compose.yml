@@ -1,0 +1,19 @@
+version: '3'
+services:
+    node:
+        image: node
+        ports:
+            - 30000:5000
+        environment:
+            - MONGODB_URI=mongodb://db/checkin
+            - NODE_ENV=development
+        links:
+            - mongo:db
+        command: npm run dev
+        volumes:
+            - ./:/app
+        working_dir: /app
+    mongo:
+        image: mongo
+        volumes:
+            - ./data:/data/db
