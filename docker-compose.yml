@@ -1,0 +1,9 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:3.6.1
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - $PWD/mongo:/data/db
+    container_name: check_in_mongo_dev
