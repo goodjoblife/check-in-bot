@@ -10,7 +10,7 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "bottender": "0.14.9",
+    "bottender": "^0.14.13",
     "config": "^1.29.0",
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",
