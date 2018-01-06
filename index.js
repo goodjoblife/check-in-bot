@@ -4,13 +4,8 @@ const MongoClient = require("mongodb").MongoClient;
 const cors = require("cors");
 
 // read configs
-const config = require("./bottender.config.js").messenger;
-const PORT = process.env.PORT || 5000;
-const CORS_ANY = process.env.CORS_ANY || false;
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/checkin";
-const ACCESS_TOKEN = process.env.accessToken || config.accessToken;
-const APP_SECRET = process.env.appSecret || config.appSecret;
+const config = require("config");
+const PORT = parseInt(process.env.PORT) || 5000;
 
 // import self-defined functions and constants
 const {
@@ -21,10 +16,7 @@ const {
   formatTime,
 } = require("./utils");
 const { prepareCheckIn } = require("./models");
-const {
-  insertCheckIn,
-  findOrCreateUserUrlKey,
-} = require("./db");
+const { insertCheckIn, findOrCreateUserUrlKey } = require("./db");
 const P = require("./constants").PAYLOADS;
 
 // connection to mongodb for backend
@@ -63,7 +55,7 @@ function genQuickReply(payloads) {
           content_type: "text",
           title: "查看我的功德",
           payload: P.VIEW_WORKING_TIME,
-        })
+        });
       default:
         break;
     }
@@ -73,11 +65,11 @@ function genQuickReply(payloads) {
 
 // initialization
 async function main() {
-  const db = await MongoClient.connect(MONGODB_URI); //TODO: close it
+  const db = await MongoClient.connect(config.MONGODB_URI); //TODO: close it
   const bot = new MessengerBot({
-    accessToken: ACCESS_TOKEN,
-    appSecret: APP_SECRET,
-    sessionStore: new MongoSessionStore(MONGODB_URI),
+    accessToken: config.ACCESS_TOKEN,
+    appSecret: config.APP_SECRET,
+    sessionStore: new MongoSessionStore(config.MONGODB_URI),
   });
   bot.setInitialState({
     isWorking: false,
@@ -205,11 +197,13 @@ async function main() {
         const userId = context._session._id;
         const urlKey = await findOrCreateUserUrlKey(db, userId);
         const url = `https://goodjoblife.github.io/check-in-frontend/${urlKey}`;
-        context.sendButtonTemplate('查看我的功德', [{
-          type: 'web_url',
-          url,
-          title: '馬上查看',
-        }]);
+        context.sendButtonTemplate("查看我的功德", [
+          {
+            type: "web_url",
+            url,
+            title: "馬上查看",
+          },
+        ]);
       } else if (text) {
         context.sendText(`${context.event.text}`);
       }
@@ -265,11 +259,11 @@ async function main() {
   });
 
   const server = createServer(bot, {
-    verifyToken: process.env.verifyToken || config.verifyToken,
+    verifyToken: config.VERIFY_TOKEN,
   });
 
   // set CORS
-  if (CORS_ANY) {
+  if (config.CORS_ANY !== "FALSE" && config.CORS_ANY !== false) {
     server.use(cors());
   } else {
     server.use(
@@ -280,7 +274,7 @@ async function main() {
   }
 
   // setup api
-  server.use(expressMongoDb(MONGODB_URI));
+  server.use(expressMongoDb(config.MONGODB_URI));
   server.use("/api", routes);
 
   server.listen(PORT, () => {

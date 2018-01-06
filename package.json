@@ -10,7 +10,8 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "bottender": "0.14.9",
+    "bottender": "^0.14.13",
+    "config": "^1.29.0",
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",
     "lodash": "^4.17.4",
@@ -20,6 +21,7 @@
     "eslint": "^4.14.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.4.0",
+    "husky": "^0.14.3",
     "lint-staged": "^6.0.0",
     "ngrok": "^2.2.24",
     "nodemon": "^1.12.5",
