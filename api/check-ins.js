@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const wrapper = fn => (req, res, next) => fn(req, res).catch(err => next(err));
+const wrap = fn => (req, res, next) => fn(req, res).catch(err => next(err));
 
 router.get(
   "/working",
