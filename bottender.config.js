@@ -37,7 +37,13 @@ module.exports = {
                 {
                   title: "查看我的功德",
                   type: "postback",
-                  payload: "VIEW_WORKING_TIME",
+                  payload: "VIEW_MY_WORKING_TIME",
+                },
+                {
+                  title: "查看全台灣功德量",
+                  type: "web_url",
+                  url: "https://goodjoblife.github.io/check-in-frontend/#/",
+                  webview_height_ratio: "full",
                 },
               ],
             },

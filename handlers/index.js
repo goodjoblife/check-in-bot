@@ -126,8 +126,27 @@ const handlers = [
     handler: async (context, db, terminate) => {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);
-      const url = `https://goodjoblife.github.io/check-in-frontend/check-ins/${urlKey}`;
+      const url = `https://goodjoblife.github.io/check-in-frontend/#/check-ins/${urlKey}`;
       context.sendButtonTemplate("查看我的功德", [
+        {
+          type: "web_url",
+          url,
+          title: "馬上查看",
+        },
+      ]);
+      terminate();
+    },
+  },
+  {
+    event: [
+      { text: ["查看全台灣功德量"] },
+      { postbackPayload: P.VIEW_TOTAL_WORKING_TIME },
+    ],
+    handler: async (context, db, terminate) => {
+      const userId = context._session._id;
+      const urlKey = await findOrCreateUserUrlKey(db, userId);
+      const url = "https://goodjoblife.github.io/check-in-frontend/#/";
+      context.sendButtonTemplate("查看全台灣功德量", [
         {
           type: "web_url",
           url,
