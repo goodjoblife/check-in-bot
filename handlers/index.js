@@ -106,7 +106,7 @@ const mainHandler = db => async context => {
         );
         await context.sendText(
           "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
-          genQuickReply([P.VIEW_WORKING_TIME, P.CHECK_IN])
+          genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_IN])
         );
 
         // reset state
@@ -119,7 +119,7 @@ const mainHandler = db => async context => {
       }
     } else if (
       ["查看我的功德", "查看我的工時"].indexOf(text) >= 0 ||
-      postbackPayload === P.VIEW_WORKING_TIME
+      postbackPayload === P.VIEW_MY_WORKING_TIME
     ) {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);

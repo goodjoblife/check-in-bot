@@ -1,6 +1,13 @@
 const get = require("lodash/get");
 const P = require("./constants").PAYLOADS;
 
+/**
+ * get location {lat, long} from Context object
+ * @param {Context} context
+ * @return {Object} coordinates
+ * @return {Number} coordinates.lat
+ * @return {Number} coordinates.long
+ */
 function getLocation(context) {
   const attachments = get(context, "event.attachments");
   if (attachments) {
@@ -17,10 +24,20 @@ function getLocation(context) {
   return null;
 }
 
+/**
+ * get timestamp from Context object
+ * @param {Context} context
+ * @return {Number} timestamp - miniseconds
+ */
 function getTimeStamp(context) {
   return get(context, "event._rawEvent.timestamp");
 }
 
+/**
+ * Get url of first image in attachments from Context object
+ * @param {Context} context
+ * @return {String} url
+ */
 function getImageUrl(context) {
   const attachments = get(context, "event.attachments");
   if (attachments) {
@@ -37,6 +54,15 @@ function getImageUrl(context) {
   return null;
 }
 
+/**
+ * Convert miniseconds to { hrs, mins, secs } format, hrs can be more than 24.
+ * e.g. 3661000 ms -> { hrs: 1, mins: 1, secs: 1 }
+ * @param {Number} ms
+ * @return {Object} time
+ * @return {Number} time.hrs
+ * @return {Number} time.mins
+ * @return {Number} time secs
+ */
 function calcTime(ms) {
   let secs = Math.round(ms / 1000);
   let mins = Math.floor(secs / 60);
@@ -46,6 +72,12 @@ function calcTime(ms) {
   return { hrs, mins, secs };
 }
 
+/**
+ * Format { hrs, mins, secs } object into readable string
+ * e.g. { hrs: 1, mins: 1, secs: 1} => 1小時 1分鐘
+ * @param {Object} timeObj
+ * @return {String} str
+ */
 function formatTime(timeObj) {
   let str = "";
   const { hrs, mins, secs } = timeObj;
@@ -61,6 +93,11 @@ function formatTime(timeObj) {
   return str;
 }
 
+/**
+ * Generate random string from English characters and numbers at given length
+ * @param {Number} length
+ * @return {String} randomStr
+ */
 function genRandomStr(length) {
   var text = "";
   var possible =
