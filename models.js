@@ -1,4 +1,5 @@
 /**
+ * View model of checkIn data
  * @param {Object} checkIn
  * @param {String} checkIn.userId
  * @param {Date} checkIn.startTime
