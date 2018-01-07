@@ -1,6 +1,7 @@
 const { genRandomStr } = require("./utils");
 
 /**
+ * Insert a check-in data into database
  * @param {Object} checkIn
  * @param {String} checkIn.userId
  * @param {Date} checkIn.startTime
@@ -15,7 +16,6 @@ const { genRandomStr } = require("./utils");
 async function insertCheckIn(db, checkIn) {
   // data validation
   // TODO: throw error
-  console.log("checkin:", checkIn);
   if (!checkIn) {
     return;
   }
@@ -32,14 +32,13 @@ async function insertCheckIn(db, checkIn) {
   }
   // insert to db
   const result = await db.collection("checkIns").insert(checkIn);
-  console.log("insertCheckIn result:", result);
 }
 
 /**
- * Generate a url key for users to access their working time
+ * Find or create a url key for users to access their working time
  * This is a temporal solution for user login
- * @param {*} db
- * @param {*} userId
+ * @param {Object} db database connection object
+ * @param {String} userId unique user id generated in session store
  */
 async function findOrCreateUserUrlKey(db, userId) {
   const users = db.collection("users");
@@ -47,8 +46,7 @@ async function findOrCreateUserUrlKey(db, userId) {
   if (r1) {
     return r1.urlKey;
   } else {
-    const randStr = genRandomStr(20);
-    console.log(randStr);
+    const randStr = genRandomStr(36);
     const result = await db.collection("users").insertOne({
       _id: userId,
       urlKey: randStr,
