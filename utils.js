@@ -1,4 +1,5 @@
 const get = require("lodash/get");
+const P = require("./constants").PAYLOADS;
 
 function getLocation(context) {
   const attachments = get(context, "event.attachments");
@@ -71,6 +72,48 @@ function genRandomStr(length) {
   return text;
 }
 
+/**
+ * Generate quick reply payload
+ * @param {*} payloads array of payload to be replied (e.g. CHECK_IN, CHECK_OUT)
+ */
+function genQuickReply(payloads) {
+  const qrs = [];
+  payloads.forEach(p => {
+    switch (p) {
+      case P.CHECK_IN:
+        qrs.push({
+          content_type: "text",
+          title: "做功德",
+          payload: P.CHECK_IN,
+        });
+        break;
+      case P.CHECK_OUT:
+        qrs.push({
+          content_type: "text",
+          title: "不做了",
+          payload: P.CHECK_OUT,
+        });
+        break;
+      case P.SEND_LOCATION:
+        qrs.push({
+          content_type: "location",
+          title: "傳送位置",
+          payload: P.SEND_LOCATION,
+        });
+        break;
+      case P.VIEW_WORKING_TIME:
+        qrs.push({
+          content_type: "text",
+          title: "查看我的功德",
+          payload: P.VIEW_WORKING_TIME,
+        });
+      default:
+        break;
+    }
+  });
+  return { quick_replies: qrs };
+}
+
 module.exports = {
   getLocation,
   getTimeStamp,
@@ -78,4 +121,5 @@ module.exports = {
   calcTime,
   formatTime,
   genRandomStr,
+  genQuickReply,
 };

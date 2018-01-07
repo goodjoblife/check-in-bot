@@ -6,6 +6,16 @@ const PAYLOADS = {
   VIEW_WORKING_TIME: "VIEW_WORKING_TIME",
 };
 
+const INIT_STATE = {
+  isWorking: false,
+  startTime: null,
+  endTime: null,
+  location: null,
+  locationTimestamp: null,
+  imgUrls: [],
+};
+
 module.exports = {
   PAYLOADS,
+  INIT_STATE,
 };
