@@ -138,11 +138,17 @@ function genQuickReply(payloads) {
           payload: P.SEND_LOCATION,
         });
         break;
-      case P.VIEW_WORKING_TIME:
+      case P.VIEW_MY_WORKING_TIME:
         qrs.push({
           content_type: "text",
           title: "查看我的功德",
-          payload: P.VIEW_WORKING_TIME,
+          payload: P.VIEW_MY_WORKING_TIME,
+        });
+      case P.VIEW_TOTAL_WORKING_TIME:
+        qrs.push({
+          content_type: "text",
+          title: "查看全台灣功德量",
+          payload: P.VIEW_TOTAL_WORKING_TIME,
         });
       default:
         break;
