@@ -144,12 +144,21 @@ function genQuickReply(payloads) {
           title: "查看我的功德",
           payload: P.VIEW_MY_WORKING_TIME,
         });
+        break;
       case P.VIEW_TOTAL_WORKING_TIME:
         qrs.push({
           content_type: "text",
-          title: "查看全台灣功德量",
+          title: "看看全台灣功德量",
           payload: P.VIEW_TOTAL_WORKING_TIME,
         });
+        break;
+      case P.VIEW_WORKING_USER_COUNT:
+        qrs.push({
+          content_type: "text",
+          title: "看看多少人在做功德",
+          payload: P.VIEW_WORKING_USER_COUNT,
+        });
+        break;
       default:
         break;
     }

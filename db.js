@@ -56,7 +56,15 @@ async function findOrCreateUserUrlKey(db, userId) {
   }
 }
 
+async function getWorkingUserCount(db) {
+  const sessions = db.collection("sessions");
+  const count = await sessions.count({ "_state.isWorking": true });
+  const total = await sessions.count();
+  return { count, total };
+}
+
 module.exports = {
   insertCheckIn,
   findOrCreateUserUrlKey,
+  getWorkingUserCount,
 };

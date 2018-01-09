@@ -8,7 +8,11 @@ const {
   genQuickReply,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
-const { insertCheckIn, findOrCreateUserUrlKey } = require("../db");
+const {
+  insertCheckIn,
+  findOrCreateUserUrlKey,
+  getWorkingUserCount,
+} = require("../db");
 
 /**
  * This is an array of handlers. Each handlers can have `event`, `state`, `handler`
@@ -35,7 +39,7 @@ const { insertCheckIn, findOrCreateUserUrlKey } = require("../db");
 const handlers = [
   // handle get started
   {
-    event: [{ postbackPayload: P.GET_STARTED }],
+    event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
     handler: async (context, db, terminate) => {
       context.resetState();
       await context.sendText(
@@ -51,7 +55,11 @@ const handlers = [
   // handle check in while not in working state
   {
     state: [{ isWorking: false }],
-    event: [{ text: ["做功德", "上班"] }, { postbackPayload: P.CHECK_IN }],
+    event: [
+      { text: ["做功德", "上班"] },
+      { postbackPayload: P.CHECK_IN },
+      { payload: P.CHECK_IN },
+    ],
     handler: async (context, db, terminate) => {
       context.setState({ isWorking: true, startTime: new Date() });
       await context.sendText(
@@ -59,7 +67,12 @@ const handlers = [
       );
       await context.sendText(
         "不如來看看其他人已經產生了多少功德？",
-        genQuickReply([P.VIEW_TOTAL_WORKING_TIME, P.CHECK_OUT])
+        genQuickReply([
+          P.VIEW_TOTAL_WORKING_TIME,
+          P.VIEW_WORKING_USER_COUNT,
+          P.VIEW_MY_WORKING_TIME,
+          P.CHECK_OUT,
+        ])
       );
       terminate();
     },
@@ -67,11 +80,19 @@ const handlers = [
   // handle check in while in working state
   {
     state: [{ isWorking: true }],
-    event: [{ text: ["做功德", "上班"] }, { postbackPayload: P.CHECK_IN }],
+    event: [
+      { text: ["做功德", "上班"] },
+      { postbackPayload: P.CHECK_IN },
+      { payload: P.CHECK_IN },
+    ],
     handler: async (context, db, terminate) => {
       await context.sendText(
         "哎呀，你已經在做功德了啦！ 不如看看其他人做了多少功德吧！",
-        genQuickReply([P.VIEW_TOTAL_WORKING_TIME, P.CHECK_OUT])
+        genQuickReply([
+          P.VIEW_TOTAL_WORKING_TIME,
+          P.VIEW_WORKING_USER_COUNT,
+          P.CHECK_OUT,
+        ])
       );
       terminate();
     },
@@ -79,7 +100,11 @@ const handlers = [
   // handle check out while not in working state
   {
     state: [{ isWorking: false }],
-    event: [{ text: ["不做了", "下班"] }, { postbackPayload: P.CHECK_OUT }],
+    event: [
+      { text: ["不做了", "下班"] },
+      { postbackPayload: P.CHECK_OUT },
+      { payload: P.CHECK_OUT },
+    ],
     handler: async (context, db, terminate) => {
       await context.sendText(
         "哎呀，其實你今天還沒開始做功德啦，現在馬上開始做吧！",
@@ -91,7 +116,11 @@ const handlers = [
   // handle check out while in working state
   {
     state: [{ isWorking: true }],
-    event: [{ text: ["不做了", "下班"] }, { postbackPayload: P.CHECK_OUT }],
+    event: [
+      { text: ["不做了", "下班"] },
+      { postbackPayload: P.CHECK_OUT },
+      { payload: P.CHECK_OUT },
+    ],
     handler: async (context, db, terminate) => {
       context.setState({ isWorking: false, endTime: new Date() });
 
@@ -110,7 +139,12 @@ const handlers = [
       );
       await context.sendText(
         "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
-        genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_IN])
+        genQuickReply([
+          P.VIEW_MY_WORKING_TIME,
+          P.VIEW_WORKING_USER_COUNT,
+          P.VIEW_TOTAL_WORKING_TIME,
+          P.CHECK_IN,
+        ])
       );
 
       // reset state
@@ -122,43 +156,110 @@ const handlers = [
     event: [
       { text: ["查看我的功德", "查看我的工時"] },
       { postbackPayload: P.VIEW_MY_WORKING_TIME },
+      { payload: P.VIEW_MY_WORKING_TIME },
     ],
     handler: async (context, db, terminate) => {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);
       const url = `https://goodjoblife.github.io/check-in-frontend/#/check-ins/${urlKey}`;
-      context.sendButtonTemplate("查看我的功德", [
-        {
-          type: "web_url",
-          url,
-          title: "馬上查看",
-        },
-      ]);
+      const qrPayloads = [P.VIEW_TOTAL_WORKING_TIME, P.VIEW_WORKING_USER_COUNT];
+      qrPayloads.push(context.state.isWorking ? P.CHECK_OUT : P.CHECK_IN);
+      await context.sendText(
+        "你製造的功德都在這了，應該拿到的加班費也幫你算好了！"
+      );
+      await context.sendText(url);
+      await context.sendText(
+        "噓！肥水不落外人田，不要隨便給別人看呀！",
+        genQuickReply(qrPayloads)
+      );
       terminate();
     },
   },
   {
     event: [
-      { text: ["查看全台灣功德量"] },
+      { text: ["看看全台灣功德量"] },
       { postbackPayload: P.VIEW_TOTAL_WORKING_TIME },
+      { payload: P.VIEW_TOTAL_WORKING_TIME },
     ],
     handler: async (context, db, terminate) => {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);
       const url = "https://goodjoblife.github.io/check-in-frontend/#/";
-      context.sendButtonTemplate("查看全台灣功德量", [
-        {
-          type: "web_url",
-          url,
-          title: "馬上查看",
-        },
-      ]);
+      const qrPayloads = [P.VIEW_WORKING_USER_COUNT, P.VIEW_MY_WORKING_TIME];
+      qrPayloads.push(context.state.isWorking ? P.CHECK_OUT : P.CHECK_IN);
+      await context.sendText(
+        "想要全台灣勞工的累積的功德嗎？想要的話可以全部給你，去找吧！我把所有的功德都放在那裡了。"
+      );
+      await context.sendText(url);
+      await context.sendText("或者是，你想...", genQuickReply(qrPayloads));
+      terminate();
+    },
+  },
+  {
+    state: [{ isWorking: true }],
+    event: [
+      { text: ["看看多少人在做功德"] },
+      { postbackPayload: P.VIEW_WORKING_USER_COUNT },
+      { payload: P.VIEW_WORKING_USER_COUNT },
+    ],
+    handler: async (context, db, terminate) => {
+      const { count, total } = await getWorkingUserCount(db);
+      const percent = Math.round(count / total * 100);
+      if (percent > 30) {
+        await context.sendText(
+          `哇！ 現在還有 ${percent}% 的使用者和你一起在做功德呢！ 你並不孤單喔！`
+        );
+        await context.sendText(
+          '為了台灣的經濟，犧牲奉獻一點，做點功德，沒關係的啦^^"',
+          genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_OUT])
+        );
+      } else {
+        await context.sendText(
+          `呃...好像只剩 ${percent}% 的使用者還在做功德耶。`
+        );
+        await context.sendText(
+          "也沒關係啦，俗話說一個便當吃不飽，可以吃兩個。\n\n做一點功德還不夠，可以做兩點呀！"
+        );
+        await context.sendText(
+          `樂觀一點想，還有 ${percent}% 的使用者在陪你做功德嘛`,
+          genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_OUT])
+        );
+      }
+      terminate();
+    },
+  },
+  {
+    state: [{ isWorking: false }],
+    event: [
+      { text: ["看看還有多少人在做功德"] },
+      { postbackPayload: P.VIEW_WORKING_USER_COUNT },
+      { payload: P.VIEW_WORKING_USER_COUNT },
+    ],
+    handler: async (context, db, terminate) => {
+      const { count, total } = await getWorkingUserCount(db);
+      const percent = Math.round(count / total * 100);
+      if (percent > 30) {
+        await context.sendText(`哇！ 現在還有 ${percent}% 的使用者在做功德...`);
+        await context.sendText(
+          '本打卡機覺得台灣真是個寶島，勞工為國家的經濟發展犧牲奉獻，GDP卻越分越少，簡直便宜大碗又好用，這種地方哪裡找呀^^"'
+        );
+        await context.sendText(
+          "明天記得也要上班做功德喔 ^＿^",
+          genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_IN])
+        );
+      } else {
+        await context.sendText(`只剩 ${percent}% 的使用者還在做功德了`);
+        await context.sendText(
+          "明天記得也要上班做功德，讓台灣功德滿滿，台灣萬歲 ^O^！",
+          genQuickReply([P.VIEW_MY_WORKING_TIME, P.CHECK_IN])
+        );
+      }
       terminate();
     },
   },
   {
     handler: async (context, db, terminate) => {
-      context.sendText(`${context.event.text}`);
+      await context.sendText(`${context.event.text}`);
     },
   },
 ];
@@ -201,6 +302,7 @@ const getPayloadFromContext = context => {
   const postbackPayload = context.event.isPostback
     ? context.event.postback.payload
     : null;
+  const payload = context.event.isPayload ? context.event.payload : null;
   const text = context.event.isText ? context.event.text : null;
   /* temporally not in use
   const location =
@@ -221,7 +323,7 @@ const getPayloadFromContext = context => {
     text,
   };
   */
-  return { postbackPayload, text };
+  return { postbackPayload, payload, text };
 };
 
 const mainHandler = db => async context => {
@@ -234,6 +336,7 @@ const mainHandler = db => async context => {
     endFlag = true;
   };
 
+  console.log(context.state, eventPayload);
   // handlers loop
   for (let i = 0; i < handlers.length; i += 1) {
     if (
