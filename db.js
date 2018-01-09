@@ -63,8 +63,18 @@ async function getWorkingUserCount(db) {
   return { count, total };
 }
 
+async function insertTextAsCorpus(db, userId, incomingText, ourReply) {
+  await db.collection("corpus").insertOne({
+    userId,
+    incomingText,
+    ourReply,
+    timeStamp: new Date(),
+  });
+}
+
 module.exports = {
   insertCheckIn,
   findOrCreateUserUrlKey,
   getWorkingUserCount,
+  insertTextAsCorpus,
 };

@@ -6,12 +6,14 @@ const {
   calcTime,
   formatTime,
   genQuickReply,
+  genRandomReply,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
 const {
   insertCheckIn,
   findOrCreateUserUrlKey,
   getWorkingUserCount,
+  insertTextAsCorpus,
 } = require("../db");
 
 /**
@@ -259,7 +261,10 @@ const handlers = [
   },
   {
     handler: async (context, db, terminate) => {
-      await context.sendText(`${context.event.text}`);
+      const reply = genRandomReply();
+      await context.sendText(reply);
+      const userId = context._session._id;
+      await insertTextAsCorpus(db, userId, context.event.text, reply);
     },
   },
 ];
