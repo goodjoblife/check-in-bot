@@ -18,9 +18,6 @@ const eventHandler = require("./handlers");
 const { INIT_STATE } = require("./constants");
 
 async function main() {
-  // connect to database
-  const db = await MongoClient.connect(config.MONGODB_URI);
-
   /* Setup bot servr */
   const bot = new MessengerBot({
     accessToken: config.ACCESS_TOKEN,
@@ -29,7 +26,7 @@ async function main() {
   });
   bot.setInitialState(INIT_STATE);
   // set event handler
-  bot.onEvent(eventHandler(db));
+  bot.onEvent(eventHandler);
   const server = createServer(bot, {
     verifyToken: config.VERIFY_TOKEN,
   });

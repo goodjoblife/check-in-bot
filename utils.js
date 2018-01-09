@@ -2,59 +2,6 @@ const get = require("lodash/get");
 const P = require("./constants").PAYLOADS;
 
 /**
- * get location {lat, long} from Context object
- * @param {Context} context
- * @return {Object} coordinates
- * @return {Number} coordinates.lat
- * @return {Number} coordinates.long
- */
-function getLocation(context) {
-  const attachments = get(context, "event.attachments");
-  if (attachments) {
-    for (let i = 0; i < attachments.length; i = i + 1) {
-      const type = get(attachments, `[${i}].type`);
-      if (type === "location") {
-        const coordinates = get(attachments, `[${i}].payload.coordinates`);
-        if (coordinates) {
-          return coordinates;
-        }
-      }
-    }
-  }
-  return null;
-}
-
-/**
- * get timestamp from Context object
- * @param {Context} context
- * @return {Number} timestamp - miniseconds
- */
-function getTimeStamp(context) {
-  return get(context, "event._rawEvent.timestamp");
-}
-
-/**
- * Get url of first image in attachments from Context object
- * @param {Context} context
- * @return {String} url
- */
-function getImageUrl(context) {
-  const attachments = get(context, "event.attachments");
-  if (attachments) {
-    for (let i = 0; i < attachments.length; i = i + 1) {
-      const type = get(attachments, `[${i}].type`);
-      if (type === "image") {
-        const url = get(attachments, `[${i}].payload.url`);
-        if (url) {
-          return url;
-        }
-      }
-    }
-  }
-  return null;
-}
-
-/**
  * Convert miniseconds to { hrs, mins, secs } format, hrs can be more than 24.
  * e.g. 3661000 ms -> { hrs: 1, mins: 1, secs: 1 }
  * @param {Number} ms
@@ -152,9 +99,6 @@ function genQuickReply(payloads) {
 }
 
 module.exports = {
-  getLocation,
-  getTimeStamp,
-  getImageUrl,
   calcTime,
   formatTime,
   genRandomStr,
