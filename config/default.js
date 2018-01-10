@@ -5,4 +5,5 @@ module.exports = {
   VERIFY_TOKEN: process.env.verifyToken,
   APP_ID: process.env.appId,
   APP_SECRET: process.env.appSecret,
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
 };
