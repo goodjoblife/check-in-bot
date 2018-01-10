@@ -1,5 +1,7 @@
 const { middleware, MessengerHandler } = require("bottender");
 const P = require("../constants").PAYLOADS;
+const FRONTEND_URL = require("config").FRONTEND_URL;
+
 const {
   getLocation,
   getTimeStamp,
@@ -164,7 +166,7 @@ const handlers = [
     handler: async (context, db, terminate) => {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);
-      const url = `https://goodjoblife.github.io/check-in-frontend/#/check-ins/${urlKey}`;
+      const url = `${FRONTEND_URL}/#/check-ins}/${urlKey}`;
       const qrPayloads = [P.VIEW_TOTAL_WORKING_TIME, P.VIEW_WORKING_USER_COUNT];
       qrPayloads.push(context.state.isWorking ? P.CHECK_OUT : P.CHECK_IN);
       await context.sendText(
@@ -187,7 +189,7 @@ const handlers = [
     handler: async (context, db, terminate) => {
       const userId = context._session._id;
       const urlKey = await findOrCreateUserUrlKey(db, userId);
-      const url = "https://goodjoblife.github.io/check-in-frontend/#/";
+      const url = FRONTEND_URL;
       const qrPayloads = [P.VIEW_WORKING_USER_COUNT, P.VIEW_MY_WORKING_TIME];
       qrPayloads.push(context.state.isWorking ? P.CHECK_OUT : P.CHECK_IN);
       await context.sendText(
