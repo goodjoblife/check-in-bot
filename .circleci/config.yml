@@ -1,5 +1,20 @@
 version: 2
 jobs:
+    test:
+        working_directory: ~/app
+        docker:
+            - image: node
+        steps:
+            - checkout
+            - run:
+                name: Install Dependencies
+                command: yarn install
+            - run:
+                name: Test
+                command: npm run test
+            - run:
+                name: Lint
+                command: npm run lint
     deploy-production:
         working_directory: ~/app
         docker:
@@ -17,6 +32,7 @@ workflows:
     version: 2
     build_and_test:
         jobs:
+            - test
             - deploy-production:
                 filters:
                     branches:

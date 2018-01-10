@@ -7,7 +7,9 @@
     "start": "node index.js",
     "lint": "eslint \"./**/*.js\"",
     "lint:fix": "npm run lint -- --fix",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "test": "npm run testonly",
+    "testonly": "jest"
   },
   "dependencies": {
     "bottender": "^0.14.13",
@@ -18,10 +20,12 @@
     "mongodb": "2.2.33"
   },
   "devDependencies": {
+    "bottender-context-simulator": "^0.0.1",
     "eslint": "^4.14.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.4.0",
     "husky": "^0.14.3",
+    "jest": "^22.0.5",
     "lint-staged": "^6.0.0",
     "ngrok": "^2.2.24",
     "nodemon": "^1.12.5",
