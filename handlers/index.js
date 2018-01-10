@@ -1,3 +1,4 @@
+const { middleware, MessengerHandler } = require("bottender");
 const P = require("../constants").PAYLOADS;
 const {
   getLocation,
@@ -250,4 +251,27 @@ const mainHandler = db => async context => {
   }
 };
 
-module.exports = mainHandler;
+const createEventHandler = db => {
+  const handler = new MessengerHandler();
+
+  // The handler logic
+
+  // return handler
+  // work around: wrap the mainHandlerr
+  const _handler = handler.build();
+  return middleware([
+    async (context, next) => {
+      await _handler(context);
+
+      if (!context.isHandled) {
+        await next();
+      }
+    },
+    mainHandler(db),
+  ]);
+};
+
+module.exports = {
+  mainHandler,
+  createEventHandler,
+};
