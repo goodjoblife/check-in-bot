@@ -56,7 +56,25 @@ async function findOrCreateUserUrlKey(db, userId) {
   }
 }
 
+async function getWorkingUserCount(db) {
+  const sessions = db.collection("sessions");
+  const count = await sessions.count({ "_state.isWorking": true });
+  const total = await sessions.count();
+  return { count, total };
+}
+
+async function insertTextAsCorpus(db, userId, incomingText, ourReply) {
+  await db.collection("corpus").insertOne({
+    userId,
+    incomingText,
+    ourReply,
+    timeStamp: new Date(),
+  });
+}
+
 module.exports = {
   insertCheckIn,
   findOrCreateUserUrlKey,
+  getWorkingUserCount,
+  insertTextAsCorpus,
 };

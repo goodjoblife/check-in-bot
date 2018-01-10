@@ -6,6 +6,7 @@ const PAYLOADS = {
   GET_STARTED: "GET_STARTED", // 開始使用
   VIEW_MY_WORKING_TIME: "VIEW_MY_WORKING_TIME", // 查看我的工時
   VIEW_TOTAL_WORKING_TIME: "VIEW_TOTAL_WORKING_TIME", // 查看全台總工時
+  VIEW_WORKING_USER_COUNT: "VIEW_WORKING_USER_COUNT", // 查看還在工作的人數
 };
 
 // initial state for bot
