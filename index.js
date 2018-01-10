@@ -12,7 +12,7 @@ const PORT = parseInt(process.env.PORT) || 5000;
 const routes = require("./api");
 
 // import event handler for bot server
-const eventHandler = require("./handlers");
+const { createEventHandler } = require("./handlers");
 
 // import some constants
 const { INIT_STATE } = require("./constants");
@@ -29,7 +29,7 @@ async function main() {
   });
   bot.setInitialState(INIT_STATE);
   // set event handler
-  bot.onEvent(eventHandler(db));
+  bot.onEvent(createEventHandler(db));
   const server = createServer(bot, {
     verifyToken: config.VERIFY_TOKEN,
   });
