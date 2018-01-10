@@ -254,6 +254,8 @@ const mainHandler = db => async context => {
 const createEventHandler = db => {
   const handler = new MessengerHandler();
 
+  // The handler logic
+
   // return handler
   // work around: wrap the mainHandlerr
   const _handler = handler.build();
