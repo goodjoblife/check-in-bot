@@ -9,7 +9,8 @@
     "lint:fix": "npm run lint -- --fix",
     "precommit": "lint-staged",
     "test": "npm run testonly",
-    "testonly": "jest"
+    "testonly": "jest",
+    "bottender:profile:set": "bottender messenger profile set"
   },
   "dependencies": {
     "bottender": "^0.14.13",
