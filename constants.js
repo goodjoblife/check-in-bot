@@ -19,7 +19,14 @@ const INIT_STATE = {
   imgUrls: [],
 };
 
+// minimum and maximum length of check-in length to be accumulated
+const CHECK_IN_LENGTH = {
+  MIN: 0, // 300000, // 5 mins = 300,000 miliseconds
+  MAX: 86400000, // 24 hours = 86400000 miliseconds
+};
+
 module.exports = {
   PAYLOADS,
   INIT_STATE,
+  CHECK_IN_LENGTH,
 };
