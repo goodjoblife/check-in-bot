@@ -1,7 +1,13 @@
-const { genRandomStr } = require("./utils");
+const {
+  calcTime,
+  convertTimeZone,
+  getYearMonthDay,
+  genRandomStr,
+} = require("./utils");
+const { CHECK_IN_LENGTH } = require("./constants");
 
 /**
- * Insert a check-in data into database
+ * Insert a check-in data into database, accumulate working time into database
  * @param {Object} checkIn
  * @param {String} checkIn.userId
  * @param {Date} checkIn.startTime
@@ -31,7 +37,53 @@ async function insertCheckIn(db, checkIn) {
     }
   }
   // insert to db
-  const result = await db.collection("checkIns").insert(checkIn);
+  await db.collection("checkIns").insert(checkIn);
+  await accuWorkTime(db, checkIn);
+}
+
+/**
+ * 累計打卡的時間總長度。
+ * 1. 為簡化問題，時間會算到起始日上。
+ *  e.g. 2018-01-13 23:00:00 ~ 2018-01-14 01:00:00 會算到 2017-01-23 上面，累積兩小時上去。
+ * 2. 為避免伺服器時區問題，統一轉乘 UTC +8 時區後，再看年、月、日
+ * @param {Object} checkIn
+ * @param {Date} checkIn.startTime
+ * @param {Date} checkIn.endTime
+ */
+async function accuWorkTime(db, checkIn) {
+  if (checkIn.startTime && checkIn.endTime) {
+    const period = checkIn.endTime.getTime() - checkIn.startTime.getTime();
+    if (period >= CHECK_IN_LENGTH.MIN && period <= CHECK_IN_LENGTH.MAX) {
+      const startTime = convertTimeZone(checkIn.startTime, 8);
+      const { year, month, day } = getYearMonthDay(startTime);
+      const { hrs, mins, secs } = calcTime(period);
+
+      const totalWorkTimes = db.collection("totalWorkTimes");
+      const time = await totalWorkTimes.findOne({ year, month, day });
+      if (time) {
+        await totalWorkTimes.updateOne(
+          { year, month, day },
+          {
+            $set: {
+              accuHrs: time.accuHrs + hrs,
+              accuMins: time.accuMins + mins,
+              accuSecs: time.accuSecs + secs,
+            },
+          }
+        );
+      } else {
+        await totalWorkTimes.insertOne({
+          year,
+          month,
+          day,
+          accuHrs: hrs,
+          accuMins: mins,
+          accuSecs: secs,
+        });
+      }
+    }
+  }
+  return;
 }
 
 /**
@@ -77,4 +129,5 @@ module.exports = {
   findOrCreateUserUrlKey,
   getWorkingUserCount,
   insertTextAsCorpus,
+  accuWorkTime,
 };

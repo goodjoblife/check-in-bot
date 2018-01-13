@@ -94,6 +94,32 @@ function formatTime(timeObj) {
 }
 
 /**
+ * function to calculate local time in given UTC offset
+ * reference: https://stackoverflow.com/questions/10087819/convert-date-to-another-timezone-in-javascript
+ */
+function convertTimeZone(date, offset) {
+  // convert to msec
+  // add local time zone offset
+  // get UTC time in msec
+  var utc = date.getTime() + date.getTimezoneOffset() * 60000;
+
+  // create new Date object for different city
+  // using supplied offset
+  var nd = new Date(utc + 3600000 * offset);
+
+  // return time as a string
+  return nd;
+}
+
+function getYearMonthDay(date) {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth(),
+    day: date.getDate(),
+  };
+}
+
+/**
  * Generate random string from English characters and numbers at given length
  * @param {Number} length
  * @return {String} randomStr
@@ -193,6 +219,8 @@ module.exports = {
   getImageUrl,
   calcTime,
   formatTime,
+  convertTimeZone,
+  getYearMonthDay,
   genRandomStr,
   genQuickReply,
   genRandomReply,
