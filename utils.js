@@ -107,7 +107,6 @@ function convertTimeZone(date, offset) {
   // using supplied offset
   var nd = new Date(utc + 3600000 * offset);
 
-  // return time as a string
   return nd;
 }
 
@@ -142,51 +141,59 @@ function genRandomStr(length) {
 function genQuickReply(payloads) {
   const qrs = [];
   payloads.forEach(p => {
-    switch (p) {
-      case P.CHECK_IN:
-        qrs.push({
-          content_type: "text",
-          title: "做功德",
-          payload: P.CHECK_IN,
-        });
-        break;
-      case P.CHECK_OUT:
-        qrs.push({
-          content_type: "text",
-          title: "不做了",
-          payload: P.CHECK_OUT,
-        });
-        break;
-      case P.SEND_LOCATION:
-        qrs.push({
-          content_type: "location",
-          title: "傳送位置",
-          payload: P.SEND_LOCATION,
-        });
-        break;
-      case P.VIEW_MY_WORKING_TIME:
-        qrs.push({
-          content_type: "text",
-          title: "查看我的功德",
-          payload: P.VIEW_MY_WORKING_TIME,
-        });
-        break;
-      case P.VIEW_TOTAL_WORKING_TIME:
-        qrs.push({
-          content_type: "text",
-          title: "看看全台灣功德量",
-          payload: P.VIEW_TOTAL_WORKING_TIME,
-        });
-        break;
-      case P.VIEW_WORKING_USER_COUNT:
-        qrs.push({
-          content_type: "text",
-          title: "看看多少人在做功德",
-          payload: P.VIEW_WORKING_USER_COUNT,
-        });
-        break;
-      default:
-        break;
+    if (p.type) {
+      switch (p.type) {
+        case P.CHECK_IN:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "開始上班做功德",
+            payload: P.CHECK_IN,
+          });
+          break;
+        case P.CHECK_OUT:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "下班了，不做了",
+            payload: P.CHECK_OUT,
+          });
+          break;
+        case P.SEND_LOCATION:
+          qrs.push({
+            content_type: "location",
+            title: p.text || "傳送位置",
+            payload: P.SEND_LOCATION,
+          });
+          break;
+        case P.VIEW_MY_WORKING_TIME:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "查看我的功德",
+            payload: P.VIEW_MY_WORKING_TIME,
+          });
+          break;
+        case P.VIEW_TOTAL_WORKING_TIME:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "看看全台灣功德量",
+            payload: P.VIEW_TOTAL_WORKING_TIME,
+          });
+          break;
+        case P.VIEW_WORKING_USER_COUNT:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "看看多少人在做功德",
+            payload: P.VIEW_WORKING_USER_COUNT,
+          });
+          break;
+        default:
+          break;
+      }
+    } else if (p.text) {
+      qrs.push({
+        content_type: "text",
+        title: p.text,
+        payload: "",
+      });
     }
   });
   return { quick_replies: qrs };
@@ -213,6 +220,12 @@ function genRandomReply() {
   return replies[Math.floor(Math.random() * replies.length)];
 }
 
+function resetState(context) {
+  const { seenTutorial } = context.state;
+  context.resetState();
+  context.setState({ seenTutorial });
+}
+
 module.exports = {
   getLocation,
   getTimeStamp,
@@ -224,4 +237,5 @@ module.exports = {
   genRandomStr,
   genQuickReply,
   genRandomReply,
+  resetState,
 };
