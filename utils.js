@@ -181,8 +181,15 @@ function genQuickReply(payloads) {
         case P.VIEW_WORKING_USER_COUNT:
           qrs.push({
             content_type: "text",
-            title: p.text || "看看多少人在做功德",
+            title: p.text || "查看還有多少人在上班",
             payload: P.VIEW_WORKING_USER_COUNT,
+          });
+          break;
+        case P.SHOW_QUICK_REPLY_MENU:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "顯示功能表",
+            payload: P.SHOW_QUICK_REPLY_MENU,
           });
           break;
         default:
