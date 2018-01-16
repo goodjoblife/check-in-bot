@@ -274,7 +274,7 @@ const handlers = [
   },
   {
     event: [
-      { text: ["看看全台灣功德量"] },
+      { text: ["看看全台灣功德量", "查看全台灣功德量"] },
       { postbackPayload: P.VIEW_TOTAL_WORKING_TIME },
       { payload: P.VIEW_TOTAL_WORKING_TIME },
     ],
@@ -297,7 +297,7 @@ const handlers = [
   {
     state: [{ isWorking: true }],
     event: [
-      { text: ["看看多少人在做功德"] },
+      { text: ["看看多少人在做功德", "現在多少人在做功德"] },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
@@ -306,22 +306,15 @@ const handlers = [
       const percent = Math.round(count / total * 100);
       if (percent > 50) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`
-        );
-        await context.sendText(
-          '為了台灣的經濟，犧牲奉獻一點，做點功德，沒關係的啦^^"',
+          `哇！ 現在還有 ${count}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
           genQuickReply([{ type: P.CHECK_OUT }])
         );
       } else {
         await context.sendText(
-          `已經有${total - count}位（${100 -
-            percent} %）的使用者下班了。你怎麼還不下班？`
+          `嗚，已經有${total - count}位（${100 - percent} %）的使用者下班了。`
         );
         await context.sendText(
-          "也沒關係啦，俗話說一個便當吃不飽，可以吃兩個。\n\n做一點功德還不夠，可以做兩點呀！"
-        );
-        await context.sendText(
-          `樂觀一點想，還有 ${percent}% 的使用者在陪你做功德嘛`,
+          "知道你為了工作而努力奮鬥，辛苦了，趕緊回家好好休息，休息是為了走更長遠的路！",
           genQuickReply([{ type: P.CHECK_OUT }])
         );
       }
@@ -331,7 +324,7 @@ const handlers = [
   {
     state: [{ isWorking: false }],
     event: [
-      { text: ["看看多少人在做功德"] },
+      { text: ["看看多少人在做功德", "現在多少人在做功德"] },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
@@ -340,13 +333,7 @@ const handlers = [
       const percent = Math.round(count / total * 100);
       if (percent > 30) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者在做功德...`
-        );
-        await context.sendText(
-          '覺得台灣真是個寶島，勞工為國家的經濟發展犧牲奉獻，GDP卻越分越少，簡直便宜大碗又好用，這種地方哪裡找呀^^"'
-        );
-        await context.sendText(
-          "明天記得也要上班做功德喔 ^＿^",
+          `哇！ 現在還有 ${count}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
           genQuickReply([
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
@@ -354,10 +341,11 @@ const handlers = [
         );
       } else {
         await context.sendText(
-          `只剩 ${count}位（${percent} %）的使用者還在做功德了`
+          `哦！ ${total - count}位（${100 -
+            percent} %）使用者已經下班了，真好真好！`
         );
         await context.sendText(
-          "明天記得也要上班做功德，讓台灣功德滿滿，台灣萬歲 ^O^！",
+          "明天記得也要上班打卡做功德喔 ^O^！",
           genQuickReply([
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },

@@ -181,7 +181,7 @@ function genQuickReply(payloads) {
         case P.VIEW_WORKING_USER_COUNT:
           qrs.push({
             content_type: "text",
-            title: p.text || "看看多少人在做功德",
+            title: p.text || "現在多少人在做功德",
             payload: P.VIEW_WORKING_USER_COUNT,
           });
           break;

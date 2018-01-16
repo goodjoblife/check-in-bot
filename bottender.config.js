@@ -40,6 +40,11 @@ module.exports = {
                   payload: "VIEW_MY_WORKING_TIME",
                 },
                 {
+                  title: "現在多少人在做功德",
+                  type: "postback",
+                  payload: "VIEW_WORKING_USER_COUNT",
+                },
+                {
                   title: "查看全台灣功德量",
                   type: "web_url",
                   url: "https://goodjoblife.github.io/check-in-frontend/#/",
