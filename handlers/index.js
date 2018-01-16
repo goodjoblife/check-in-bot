@@ -297,7 +297,13 @@ const handlers = [
   {
     state: [{ isWorking: true }],
     event: [
-      { text: ["看看多少人在做功德", "現在多少人在做功德"] },
+      {
+        text: [
+          "看看多少人在做功德",
+          "現在多少人在做功德",
+          "查看還有多少人在上班",
+        ],
+      },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
@@ -324,7 +330,13 @@ const handlers = [
   {
     state: [{ isWorking: false }],
     event: [
-      { text: ["看看多少人在做功德", "現在多少人在做功德"] },
+      {
+        text: [
+          "看看多少人在做功德",
+          "現在多少人在做功德",
+          "查看還有多少人在上班",
+        ],
+      },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
@@ -355,10 +367,34 @@ const handlers = [
       terminate();
     },
   },
+  // show quick reply menu
+  {
+    event: [
+      { text: ["顯示功能表"] },
+      { postbackPayload: P.SHOW_QUICK_REPLY_MENU },
+      { payload: P.SHOW_QUICK_REPLY_MENU },
+    ],
+    handler: async (context, db, terminate) => {
+      const qrPayloads = [
+        { text: "查看我的打卡記錄", type: P.VIEW_MY_WORKING_TIME },
+        { text: "查看還有多少人在上班做功德", type: P.VIEW_WORKING_USER_COUNT },
+        { type: "查看全台灣總功德量", type: P.VIEW_TOTAL_WORKING_TIME },
+      ];
+      qrPayloads.push(
+        context.state.isWorking ? { type: P.CHECK_OUT } : { type: P.CHECK_IN }
+      );
+      await context.sendText("你可以...", genQuickReply(qrPayloads));
+      terminate();
+    },
+  },
+  // reply random string for rest condition
   {
     handler: async (context, db, terminate) => {
       const reply = genRandomReply();
-      await context.sendText(reply);
+      await context.sendText(
+        reply,
+        genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+      );
       const userId = context._session._id;
       await insertTextAsCorpus(db, userId, context.event.text, reply);
     },
