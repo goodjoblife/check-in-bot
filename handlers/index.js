@@ -112,6 +112,20 @@ const handlers = [
       terminate();
     },
   },
+  /** 這個 handler 要解決兩個問題：
+   * 1. 部分的裝置在第一次使用的時候，不會出現「開始使用」的按鈕。為了避免它沒有經過教學流程，這邊等於是強制他走完教學流程。
+   * 2. 部分使用者已經使用過舊版的 handler ，不會再按「開始使用」一次，這邊也是把它攔截下來，讓他跑教學流程。
+   */
+  {
+    state: [{ seenTutorial: false }, { seenTutorial: undefined }],
+    handler: async (context, db, terminate) => {
+      await context.sendText(
+        "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
+        genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
+      );
+      terminate();
+    },
+  },
   // handle check in while not in working state
   {
     state: [{ isWorking: false }],
@@ -437,7 +451,6 @@ const mainHandler = db => async context => {
     endFlag = true;
   };
 
-  console.log(context.state, eventPayload);
   // handlers loop
   for (let i = 0; i < handlers.length; i += 1) {
     if (
