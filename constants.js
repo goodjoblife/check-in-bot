@@ -46,9 +46,26 @@ const RANDOM_REPLIES = [
   "><，其實我沒有那麼智慧，知道怎麼跟你聊天。\n不過，如果你願意的話，請給予我們回饋和建議，讓我們做得更好！ 回饋表單：https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
 ];
 
+const PROMO_IMG_URLS = {
+  2018: {
+    1: {
+      18: "https://image.goodjob.life/check-in/bot/2018-01-18.png",
+      19: "https://image.goodjob.life/check-in/bot/2018-01-19.png",
+      20: "https://image.goodjob.life/check-in/bot/2018-01-20.png",
+      21: "https://image.goodjob.life/check-in/bot/2018-01-21.png",
+      22: "https://image.goodjob.life/check-in/bot/2018-01-22.png",
+      23: "https://image.goodjob.life/check-in/bot/2018-01-23.png",
+      24: "https://image.goodjob.life/check-in/bot/2018-01-24.png",
+      25: "https://image.goodjob.life/check-in/bot/2018-01-25.png",
+      26: "https://image.goodjob.life/check-in/bot/2018-01-26.png",
+    },
+  },
+};
+
 module.exports = {
   PAYLOADS,
   INIT_STATE,
   CHECK_IN_LENGTH,
   RANDOM_REPLIES,
+  PROMO_IMG_URLS,
 };

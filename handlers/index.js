@@ -10,6 +10,7 @@ const {
   formatTime,
   genQuickReply,
   genRandomReply,
+  getTodayPromoteImage,
   resetState,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
@@ -363,6 +364,20 @@ const handlers = [
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
           ])
+        );
+      }
+      terminate();
+    },
+  },
+  // show 每日功德語圖片
+  {
+    event: [{ text: ["每日功德語", "今日功德語", "功德語"] }],
+    handler: async (context, db, terminate) => {
+      const imgUrl = getTodayPromoteImage();
+      if (imgUrl) {
+        context.sendImage(
+          imgUrl,
+          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
         );
       }
       terminate();

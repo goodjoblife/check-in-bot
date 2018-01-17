@@ -1,5 +1,5 @@
 const get = require("lodash/get");
-const { PAYLOADS: P, RANDOM_REPLIES } = require("./constants");
+const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
 
 /**
  * get location {lat, long} from Context object
@@ -210,6 +210,13 @@ function genRandomReply() {
   return RANDOM_REPLIES[Math.floor(Math.random() * RANDOM_REPLIES.length)];
 }
 
+// 這個是暫時用宣傳用的，就先設定 2018-01-19 ~ 2018-01-31
+function getTodayPromoteImage() {
+  const now = convertTimeZone(new Date(), 8);
+  const { year, month, day } = getYearMonthDay(now);
+  return get(PROMO_IMG_URLS, `[${year}][${month + 1}][${day}]`);
+}
+
 function resetState(context) {
   const { seenTutorial } = context.state;
   context.resetState();
@@ -227,5 +234,6 @@ module.exports = {
   genRandomStr,
   genQuickReply,
   genRandomReply,
+  getTodayPromoteImage,
   resetState,
 };
