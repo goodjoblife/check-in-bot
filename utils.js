@@ -1,5 +1,5 @@
 const get = require("lodash/get");
-const P = require("./constants").PAYLOADS;
+const { PAYLOADS: P, RANDOM_REPLIES } = require("./constants");
 
 /**
  * get location {lat, long} from Context object
@@ -207,24 +207,7 @@ function genQuickReply(payloads) {
 }
 
 function genRandomReply() {
-  const replies = [
-    "你真的以為我這麼聰明？會回覆你？",
-    "我只是一個打卡機器人，沒有雲端大數據深度學習區塊鏈的技能啦",
-    "阿密陀佛，功德主，你有什麼請教嗎？",
-    "我只是不過是一介打卡機器人",
-    "安安你好",
-    "哈庫納馬踏踏",
-    "拍拍澎呸，溫柔柔美",
-    "何種命令？",
-    "安安你好，你有聽過功德院嗎？",
-    "你對我們的德德兄有什麼想法？",
-    "你對我們的文文有什麼想法？",
-    "你對我們的珠珠姊有什麼想法？",
-    "每日一功德語：\n如果要配合把薪資提高到三萬元，我希望基本工資能凍漲五年 \n by 林伯伯",
-    "每日一功德語：\n台灣勞工哪有過勞死？ 有也是本來就有病 \n by 資資代表",
-    "每日一功德語：\n一個便當吃不飽，可以吃兩個啊！一份工作賺不夠，可以做兩份呀！",
-  ];
-  return replies[Math.floor(Math.random() * replies.length)];
+  return RANDOM_REPLIES[Math.floor(Math.random() * RANDOM_REPLIES.length)];
 }
 
 function resetState(context) {
