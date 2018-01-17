@@ -45,6 +45,37 @@ const {
  */
 // 這是一款協助你紀錄工時、計算加班費，同時製造無量功德的聊天機器人
 const handlers = [
+  // a simple trick to do migration
+  {
+    handler: async (context, db, terminate) => {
+      const init = {};
+      if (context.state.conversationCount === undefined) {
+        init.conversationCount = 0;
+      }
+      if (context.state.seenTutorial === undefined) {
+        init.seenTutorial = false;
+      }
+      context.setState(init);
+    },
+  },
+  // send feedback forms per 15 conversations
+  {
+    handler: async (context, db, terminate) => {
+      context.setState({
+        conversationCount: context.state.conversationCount + 1,
+      });
+      if (context.state.conversationCount >= 15) {
+        await context.sendText(
+          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
+        );
+        await context.sendText(
+          "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
+          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+        );
+        context.setState({ conversationCount: 0 });
+      }
+    },
+  },
   // handle get started
   {
     event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
@@ -95,7 +126,7 @@ const handlers = [
     event: [{ text: "就這樣？還有其他功能嗎？" }],
     handler: async (context, db, terminate) => {
       await context.sendText(
-        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n - 查看今天台灣人已經累積多少功德\n - 上下班即時動態，看現在還有多少人在做功德",
+        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德",
         genQuickReply([{ text: "好，我懂了，開始使用！" }])
       );
       terminate();
@@ -118,9 +149,8 @@ const handlers = [
    * 2. 部分使用者已經使用過舊版的 handler ，不會再按「開始使用」一次，這邊也是把它攔截下來，讓他跑教學流程。
    */
   {
-    state: [{ seenTutorial: false }, { seenTutorial: undefined }],
+    state: [{ seenTutorial: false }],
     handler: async (context, db, terminate) => {
-      context.setState({ seenTutorial: false });
       await context.sendText(
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])

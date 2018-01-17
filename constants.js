@@ -19,6 +19,7 @@ const INIT_STATE = {
   locationTimestamp: null,
   imgUrls: [],
   seenTutorial: false,
+  conversationCount: 0,
 };
 
 // minimum and maximum length of check-in length to be accumulated

@@ -218,9 +218,9 @@ function getTodayPromoteImage() {
 }
 
 function resetState(context) {
-  const { seenTutorial } = context.state;
+  const { seenTutorial, conversationCount } = context.state;
   context.resetState();
-  context.setState({ seenTutorial });
+  context.setState({ seenTutorial, conversationCount });
 }
 
 module.exports = {
