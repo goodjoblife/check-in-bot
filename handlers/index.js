@@ -119,6 +119,7 @@ const handlers = [
   {
     state: [{ seenTutorial: false }, { seenTutorial: undefined }],
     handler: async (context, db, terminate) => {
+      context.setState({ seenTutorial: false });
       await context.sendText(
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
