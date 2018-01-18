@@ -217,10 +217,15 @@ function getTodayPromoteImage() {
   return get(PROMO_IMG_URLS, `[${year}][${month + 1}][${day}]`);
 }
 
-function resetState(context) {
-  const { seenTutorial, conversationCount } = context.state;
-  context.resetState();
-  context.setState({ seenTutorial, conversationCount });
+function resetCheckInState(context) {
+  context.setState({
+    isWorking: false,
+    startTime: null,
+    endTime: null,
+    location: null,
+    locationTimestamp: null,
+    imgUrls: [],
+  });
 }
 
 module.exports = {
@@ -235,5 +240,5 @@ module.exports = {
   genQuickReply,
   genRandomReply,
   getTodayPromoteImage,
-  resetState,
+  resetCheckInState,
 };
