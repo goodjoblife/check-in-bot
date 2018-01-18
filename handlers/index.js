@@ -66,7 +66,7 @@ const handlers = [
       });
       if (context.state.conversationCount >= 15) {
         await context.sendText(
-          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
+          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
         );
         await context.sendText(
           "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
@@ -105,7 +105,7 @@ const handlers = [
     handler: async (context, db, terminate) => {
       await context.sendText(
         "很簡單，按下「上班，做功德」，就會開始記錄你的工時，你的功德就會源源不絕地產生囉^^",
-        genQuickReply([{ text: "那要怎麼下班？" }])
+        genQuickReply([{ text: "那要怎麼下班？" }])
       );
       terminate();
     },
@@ -271,7 +271,7 @@ const handlers = [
       const checkIn = prepareCheckIn(userId, context.state);
       await insertCheckIn(db, checkIn);
 
-      // send ending message
+      // send ending message
       const time =
         context.state.endTime.getTime() - context.state.startTime.getTime();
       await context.sendText(
