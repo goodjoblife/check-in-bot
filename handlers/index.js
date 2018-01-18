@@ -175,7 +175,7 @@ const handlers = [
         "不如再記錄下你的工作位置吧！",
         genQuickReply([
           { type: P.SEND_LOCATION },
-          { text: "暫時先不上傳位置" },
+          { text: "暫時不上傳位置" },
           { type: P.CHECK_OUT },
         ])
       );
@@ -183,13 +183,12 @@ const handlers = [
     },
   },
   {
-    event: [{ text: "暫時先不上傳位置" }],
+    event: [{ text: "暫時不上傳位置" }],
     handler: async (context, db, terminate) => {
       await context.sendText(
-        "好呦，也沒關係，你還可以...",
+        "好呦，也沒關係，你也可以...",
         genQuickReply([
-          { type: P.VIEW_TOTAL_WORKING_TIME, text: "查看全台灣功德數" },
-          { type: P.VIEW_WORKING_USER_COUNT, text: "查看多少人在工作" },
+          { type: P.VIEW_TOTAL_WORKING_TIME },
           { type: P.CHECK_OUT },
         ])
       );
@@ -215,8 +214,7 @@ const handlers = [
       await context.sendText(
         "打卡成功！\n\n不如...",
         genQuickReply([
-          { type: P.VIEW_TOTAL_WORKING_TIME, text: "查看全台灣功德數" },
-          { type: P.VIEW_WORKING_USER_COUNT, text: "查看多少人在工作" },
+          { type: P.VIEW_TOTAL_WORKING_TIME },
           { type: P.CHECK_OUT },
         ])
       );
@@ -281,12 +279,7 @@ const handlers = [
       );
       await context.sendText(
         "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
-        genQuickReply([
-          { type: P.VIEW_MY_WORKING_TIME },
-          { type: P.VIEW_WORKING_USER_COUNT },
-          { type: P.VIEW_TOTAL_WORKING_TIME },
-          { type: P.CHECK_IN },
-        ])
+        genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
       );
 
       // reset check-in state
@@ -296,7 +289,7 @@ const handlers = [
   },
   {
     event: [
-      { text: ["查看我的功德", "查看我的工時"] },
+      { text: ["查看我的功德", "查看我的工時", "查看我的打卡記錄"] },
       { postbackPayload: P.VIEW_MY_WORKING_TIME },
       { payload: P.VIEW_MY_WORKING_TIME },
     ],
@@ -352,6 +345,7 @@ const handlers = [
           "看看多少人在做功德",
           "現在多少人在做功德",
           "查看還有多少人在上班",
+          "查看多少人在上班",
         ],
       },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
@@ -385,6 +379,7 @@ const handlers = [
           "看看多少人在做功德",
           "現在多少人在做功德",
           "查看還有多少人在上班",
+          "查看多少人在上班",
         ],
       },
       { postbackPayload: P.VIEW_WORKING_USER_COUNT },
@@ -440,9 +435,9 @@ const handlers = [
     ],
     handler: async (context, db, terminate) => {
       const qrPayloads = [
-        { text: "查看我的打卡記錄", type: P.VIEW_MY_WORKING_TIME },
-        { text: "查看還有多少人在上班做功德", type: P.VIEW_WORKING_USER_COUNT },
-        { type: "查看全台灣總功德量", type: P.VIEW_TOTAL_WORKING_TIME },
+        { type: P.VIEW_MY_WORKING_TIME },
+        { type: P.VIEW_WORKING_USER_COUNT },
+        { type: P.VIEW_TOTAL_WORKING_TIME },
       ];
       qrPayloads.push(
         context.state.isWorking ? { type: P.CHECK_OUT } : { type: P.CHECK_IN }
