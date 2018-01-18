@@ -15,12 +15,12 @@ const simulator = new ContextSimulator({
   platform: "messenger",
 });
 
-describe("打卡", () => {
+describe("上班", () => {
   it("user send quick reply", async () => {
     const handler = setup();
 
     const context = simulator.createQuickReplyContext("做功德", "CHECK_IN", {
-      state: { isWorking: false },
+      state: { seenTutorial: true, isWorking: false },
     });
 
     await handler(context);
@@ -41,7 +41,7 @@ describe("打卡", () => {
     const handler = setup();
 
     const context = simulator.createTextContext("做功德", {
-      state: { isWorking: false },
+      state: { seenTutorial: true, isWorking: false },
     });
 
     await handler(context);
