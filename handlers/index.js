@@ -105,7 +105,7 @@ const handlers = [
     handler: async (context, db, terminate) => {
       await context.sendText(
         "很簡單，按下「上班，做功德」，就會開始記錄你的工時，你的功德就會源源不絕地產生囉^^",
-        genQuickReply([{ text: "那要怎麼下班？" }])
+        genQuickReply([{ text: "那要怎麼下班？" }])
       );
       terminate();
     },
