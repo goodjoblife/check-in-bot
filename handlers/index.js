@@ -10,7 +10,8 @@ const {
   formatTime,
   genQuickReply,
   genRandomReply,
-  resetState,
+  getTodayPromoteImage,
+  resetCheckInState,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
 const {
@@ -44,6 +45,37 @@ const {
  */
 // 這是一款協助你紀錄工時、計算加班費，同時製造無量功德的聊天機器人
 const handlers = [
+  // a simple trick to do migration
+  {
+    handler: async (context, db, terminate) => {
+      const init = {};
+      if (context.state.conversationCount === undefined) {
+        init.conversationCount = 0;
+      }
+      if (context.state.seenTutorial === undefined) {
+        init.seenTutorial = false;
+      }
+      context.setState(init);
+    },
+  },
+  // send feedback forms per 15 conversations
+  {
+    handler: async (context, db, terminate) => {
+      context.setState({
+        conversationCount: context.state.conversationCount + 1,
+      });
+      if (context.state.conversationCount >= 15) {
+        await context.sendText(
+          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
+        );
+        await context.sendText(
+          "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
+          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+        );
+        context.setState({ conversationCount: 0 });
+      }
+    },
+  },
   // handle get started
   {
     event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
@@ -94,7 +126,7 @@ const handlers = [
     event: [{ text: "就這樣？還有其他功能嗎？" }],
     handler: async (context, db, terminate) => {
       await context.sendText(
-        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n - 查看今天台灣人已經累積多少功德\n - 上下班即時動態，看現在還有多少人在做功德",
+        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德",
         genQuickReply([{ text: "好，我懂了，開始使用！" }])
       );
       terminate();
@@ -117,9 +149,8 @@ const handlers = [
    * 2. 部分使用者已經使用過舊版的 handler ，不會再按「開始使用」一次，這邊也是把它攔截下來，讓他跑教學流程。
    */
   {
-    state: [{ seenTutorial: false }, { seenTutorial: undefined }],
+    state: [{ seenTutorial: false }],
     handler: async (context, db, terminate) => {
-      context.setState({ seenTutorial: false });
       await context.sendText(
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
@@ -131,7 +162,7 @@ const handlers = [
   {
     state: [{ isWorking: false }],
     event: [
-      { text: ["做功德", "上班", "開始上班做功德"] },
+      { text: ["做功德", "上班", "上班做功德", "打卡", "開始上班做功德"] },
       { postbackPayload: P.CHECK_IN },
       { payload: P.CHECK_IN },
     ],
@@ -142,7 +173,25 @@ const handlers = [
       );
       await context.sendText(
         "不如再記錄下你的工作位置吧！",
-        genQuickReply([{ type: P.SEND_LOCATION }, { type: P.CHECK_OUT }])
+        genQuickReply([
+          { type: P.SEND_LOCATION },
+          { text: "暫時先不上傳位置" },
+          { type: P.CHECK_OUT },
+        ])
+      );
+      terminate();
+    },
+  },
+  {
+    event: [{ text: "暫時先不上傳位置" }],
+    handler: async (context, db, terminate) => {
+      await context.sendText(
+        "好呦，也沒關係，你還可以...",
+        genQuickReply([
+          { type: P.VIEW_TOTAL_WORKING_TIME, text: "查看全台灣功德數" },
+          { type: P.VIEW_WORKING_USER_COUNT, text: "查看多少人在工作" },
+          { type: P.CHECK_OUT },
+        ])
       );
       terminate();
     },
@@ -166,8 +215,8 @@ const handlers = [
       await context.sendText(
         "打卡成功！\n\n不如...",
         genQuickReply([
-          { type: P.VIEW_TOTAL_WORKING_TIME, text: "來看看全台灣累積的功德數" },
-          { type: P.VIEW_WORKING_USER_COUNT, text: "來看看有多少人正在做功德" },
+          { type: P.VIEW_TOTAL_WORKING_TIME, text: "查看全台灣功德數" },
+          { type: P.VIEW_WORKING_USER_COUNT, text: "查看多少人在工作" },
           { type: P.CHECK_OUT },
         ])
       );
@@ -210,7 +259,7 @@ const handlers = [
   {
     state: [{ isWorking: true }],
     event: [
-      { text: ["不做了", "下班"] },
+      { text: ["不做了", "下班", "打卡", "下班，不做了"] },
       { postbackPayload: P.CHECK_OUT },
       { payload: P.CHECK_OUT },
     ],
@@ -240,8 +289,8 @@ const handlers = [
         ])
       );
 
-      // reset state
-      resetState(context);
+      // reset check-in state
+      resetCheckInState(context);
       terminate();
     },
   },
@@ -363,6 +412,20 @@ const handlers = [
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
           ])
+        );
+      }
+      terminate();
+    },
+  },
+  // show 每日功德語圖片
+  {
+    event: [{ text: ["每日功德語", "今日功德語", "功德語"] }],
+    handler: async (context, db, terminate) => {
+      const imgUrl = getTodayPromoteImage();
+      if (imgUrl) {
+        context.sendImage(
+          imgUrl,
+          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
         );
       }
       terminate();
