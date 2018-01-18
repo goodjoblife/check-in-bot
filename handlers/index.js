@@ -162,7 +162,7 @@ const handlers = [
   {
     state: [{ isWorking: false }],
     event: [
-      { text: ["做功德", "上班", "開始上班做功德"] },
+      { text: ["做功德", "上班", "上班做功德", "打卡", "開始上班做功德"] },
       { postbackPayload: P.CHECK_IN },
       { payload: P.CHECK_IN },
     ],
@@ -259,7 +259,7 @@ const handlers = [
   {
     state: [{ isWorking: true }],
     event: [
-      { text: ["不做了", "下班"] },
+      { text: ["不做了", "下班", "打卡", "下班，不做了"] },
       { postbackPayload: P.CHECK_OUT },
       { payload: P.CHECK_OUT },
     ],
