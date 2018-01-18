@@ -167,7 +167,7 @@ function genQuickReply(payloads) {
         case P.VIEW_MY_WORKING_TIME:
           qrs.push({
             content_type: "text",
-            title: p.text || "查看我的功德",
+            title: p.text || "查看我的打卡記錄",
             payload: P.VIEW_MY_WORKING_TIME,
           });
           break;
@@ -181,7 +181,7 @@ function genQuickReply(payloads) {
         case P.VIEW_WORKING_USER_COUNT:
           qrs.push({
             content_type: "text",
-            title: p.text || "查看還有多少人在上班",
+            title: p.text || "查看多少人在上班",
             payload: P.VIEW_WORKING_USER_COUNT,
           });
           break;
