@@ -11,7 +11,7 @@ const {
   genQuickReply,
   genRandomReply,
   getTodayPromoteImage,
-  resetState,
+  resetCheckInState,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
 const {
@@ -289,8 +289,8 @@ const handlers = [
         ])
       );
 
-      // reset state
-      resetState(context);
+      // reset check-in state
+      resetCheckInState(context);
       terminate();
     },
   },
