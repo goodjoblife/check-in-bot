@@ -58,6 +58,26 @@ const handlers = [
       context.setState(init);
     },
   },
+  // show 每日功德語圖片
+  {
+    event: [{ text: ["每日功德語", "今日功德語", "功德語"] }],
+    handler: async (context, db, terminate) => {
+      const imgUrl = getTodayPromoteImage();
+      let qrs = null;
+      if (context.state.seenTutorial) {
+        qrs = genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }]);
+      } else {
+        qrs = genQuickReply([{ type: P.GET_STARTED, text: "開始教學" }]);
+      }
+      if (imgUrl) {
+        await context.sendText("本日功德語：");
+        await context.sendImage(imgUrl, qrs);
+      } else {
+        await context.sendText("哎呦，今天沒有功德語啦", qrs);
+      }
+      terminate();
+    },
+  },
   // send feedback forms per 15 conversations
   {
     handler: async (context, db, terminate) => {
@@ -126,7 +146,7 @@ const handlers = [
     event: [{ text: "就這樣？還有其他功能嗎？" }],
     handler: async (context, db, terminate) => {
       await context.sendText(
-        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德",
+        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德 \n\n (教學完畢)",
         genQuickReply([{ text: "好，我懂了，開始使用！" }])
       );
       terminate();
@@ -152,7 +172,7 @@ const handlers = [
     state: [{ seenTutorial: false }],
     handler: async (context, db, terminate) => {
       await context.sendText(
-        "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
+        "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。\n\n(請看完教學才能正常使用呦）",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
       );
       terminate();
@@ -407,20 +427,6 @@ const handlers = [
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
           ])
-        );
-      }
-      terminate();
-    },
-  },
-  // show 每日功德語圖片
-  {
-    event: [{ text: ["每日功德語", "今日功德語", "功德語"] }],
-    handler: async (context, db, terminate) => {
-      const imgUrl = getTodayPromoteImage();
-      if (imgUrl) {
-        context.sendImage(
-          imgUrl,
-          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
         );
       }
       terminate();

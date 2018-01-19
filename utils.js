@@ -143,6 +143,13 @@ function genQuickReply(payloads) {
   payloads.forEach(p => {
     if (p.type) {
       switch (p.type) {
+        case P.GET_STARTED:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "開始使用",
+            payload: P.GET_STARTED,
+          });
+          break;
         case P.CHECK_IN:
           qrs.push({
             content_type: "text",
