@@ -3,7 +3,7 @@ const { createEventHandler } = require("../");
 
 function setup() {
   const db = {
-    collection: jest.fn(),
+    collection: jest.fn(() => ({ insertOne: jest.fn() })),
   };
 
   const handler = createEventHandler(db);
