@@ -69,12 +69,21 @@ const handlers = [
       } else {
         qrs = genQuickReply([{ type: P.GET_STARTED, text: "開始教學" }]);
       }
+
       if (imgUrl) {
         await context.sendText("本日功德語：");
         await context.sendImage(imgUrl, qrs);
       } else {
         await context.sendText("哎呦，今天沒有功德語啦", qrs);
       }
+      terminate();
+    },
+  },
+  // 重置狀態用的
+  {
+    event: [{ text: ["GoodJob重置"] }],
+    handler: async (context, db, terminate) => {
+      context.resetState();
       terminate();
     },
   },
@@ -100,11 +109,17 @@ const handlers = [
   {
     event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
     handler: async (context, db, terminate) => {
-      context.resetState();
-      await context.sendText(
-        "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
-        genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
-      );
+      if (context.state.seenTutorial) {
+        await context.sendText(
+          "來呦，功能表在這！",
+          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+        );
+      } else {
+        await context.sendText(
+          "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
+          genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
+        );
+      }
       terminate();
     },
   },
@@ -145,6 +160,7 @@ const handlers = [
     state: [{ seenTutorial: false }],
     event: [{ text: "就這樣？還有其他功能嗎？" }],
     handler: async (context, db, terminate) => {
+      context.setState({ seenTutorial: true });
       await context.sendText(
         "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德 \n\n (教學完畢)",
         genQuickReply([{ text: "好，我懂了，開始使用！" }])
@@ -153,10 +169,8 @@ const handlers = [
     },
   },
   {
-    state: [{ seenTutorial: false }],
     event: [{ text: "好，我懂了，開始使用！" }],
     handler: async (context, db, terminate) => {
-      context.setState({ seenTutorial: true });
       await context.sendText(
         "太好了！ 馬上來做功德吧！",
         genQuickReply([{ type: P.CHECK_IN }])
