@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "bottender": "^0.14.13",
+    "bottender-chatbase": "^0.2.1",
     "config": "^1.29.0",
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",

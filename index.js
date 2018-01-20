@@ -1,5 +1,6 @@
 const { MessengerBot, MongoSessionStore } = require("bottender");
 const { createServer } = require("bottender/express");
+const chatbaseMiddleware = require("bottender-chatbase/express");
 const MongoClient = require("mongodb").MongoClient;
 const cors = require("cors");
 const expressMongoDb = require("express-mongo-db");
@@ -32,6 +33,10 @@ async function main() {
   bot.onEvent(createEventHandler(db));
   const server = createServer(bot, {
     verifyToken: config.VERIFY_TOKEN,
+    webhookMiddleware: chatbaseMiddleware(bot, {
+      apiKey: config.CHATBASE_API_KEY,
+      platform: "Facebook",
+    }),
   });
 
   /* Setup api server */
