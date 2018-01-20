@@ -21,6 +21,8 @@ const {
   insertTextAsCorpus,
 } = require("../db");
 
+const { createLoggingHandler } = require("./logging");
+
 /**
  * This is an array of handlers. Each handlers can have `event`, `state`, `handler`
  * 基本規則：
@@ -579,6 +581,7 @@ const createEventHandler = db => {
   // work around: wrap the mainHandlerr
   const _handler = handler.build();
   return middleware([
+    createLoggingHandler(db),
     async (context, next) => {
       await _handler(context);
 
