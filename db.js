@@ -41,6 +41,13 @@ async function insertCheckIn(db, checkIn) {
   await accuWorkTime(db, checkIn);
 }
 
+async function getUserCheckIns(db, userId) {
+  return await db
+    .collection("checkIns")
+    .find({ userId })
+    .toArray();
+}
+
 /**
  * 累計打卡的時間總長度。
  * 1. 為簡化問題，時間會算到起始日上。
@@ -126,6 +133,7 @@ async function insertTextAsCorpus(db, userId, incomingText, ourReply) {
 
 module.exports = {
   insertCheckIn,
+  getUserCheckIns,
   findOrCreateUserUrlKey,
   getWorkingUserCount,
   insertTextAsCorpus,

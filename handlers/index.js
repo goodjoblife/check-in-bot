@@ -16,6 +16,7 @@ const {
 const { prepareCheckIn } = require("../models");
 const {
   insertCheckIn,
+  getUserCheckIns,
   findOrCreateUserUrlKey,
   getWorkingUserCount,
   insertTextAsCorpus,
@@ -313,6 +314,13 @@ const handlers = [
           calcTime(time)
         )} 的功德，已經存到台灣功德大數據資料庫內。`
       );
+
+      const userCheckIns = await getUserCheckIns(db, userId);
+      const nUserCheckIns = userCheckIns.length;
+      await context.sendText(
+        `你目前已經打了${nUserCheckIns}天卡，相信記錄功德數也對你有幫助！`
+      );
+
       await context.sendText(
         "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
         genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
