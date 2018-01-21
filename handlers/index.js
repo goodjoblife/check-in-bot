@@ -7,6 +7,7 @@ const {
   getTimeStamp,
   getImageUrl,
   calcTime,
+  calcCheckInDayCount,
   formatTime,
   genQuickReply,
   genRandomReply,
@@ -316,7 +317,7 @@ const handlers = [
       );
 
       const userCheckIns = await getUserCheckIns(db, userId);
-      const nUserCheckIns = userCheckIns.length;
+      const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       await context.sendText(
         `你目前已經打了${nUserCheckIns}天卡，相信記錄功德數也對你有幫助！`
       );

@@ -73,6 +73,23 @@ function calcTime(ms) {
 }
 
 /**
+ * Calculate how many unique days within an object list
+ * @param {Array} checkIns
+ * @return {Number} nUniqDays
+ */
+function calcCheckInDayCount(checkIns) {
+  const timestamps = _.map(checkIns, "startTime");
+  const days = _.map(timestamps, ts => {
+    const date = new Date(ts);
+    date.setHours(0, 0, 0, 0);
+    return date.getTime();
+  });
+  const uniqDays = _.uniqBy(days);
+  const nUniqDays = uniqDays.length;
+  return nUniqDays;
+}
+
+/**
  * Format { hrs, mins, secs } object into readable string
  * e.g. { hrs: 1, mins: 1, secs: 1} => 1小時 1分鐘
  * @param {Object} timeObj
@@ -240,6 +257,7 @@ module.exports = {
   getTimeStamp,
   getImageUrl,
   calcTime,
+  calcCheckInDayCount,
   formatTime,
   convertTimeZone,
   getYearMonthDay,

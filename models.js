@@ -10,6 +10,7 @@
  * @param {Date} checkIn.locationTimestamp
  * @param {Array} checkIn.imgUrls
  * @param {String} checkIn.imgUrls[i]
+ * @param {Date} checkIn.createdAt
  */
 function prepareCheckIn(userId, state) {
   return {
