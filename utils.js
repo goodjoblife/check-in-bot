@@ -90,6 +90,25 @@ function calcCheckInDayCount(checkIns) {
 }
 
 /**
+ * Calculate the encouragement sentence based on
+ * the current days the user uses this bot
+ * @param {Number} currentDays
+ * @return {String} encouragement
+ */
+function getEncouragement(currentDays) {
+  if (currentDays < 3) {
+    return "再努力幾天，試著打滿3天吧！";
+  }
+  if (currentDays < 5) {
+    return "再努力幾天，往5天邁進！";
+  }
+  if (currentDays < 7) {
+    return "再撐一下，至少完成一週！";
+  }
+  return "";
+}
+
+/**
  * Format { hrs, mins, secs } object into readable string
  * e.g. { hrs: 1, mins: 1, secs: 1} => 1小時 1分鐘
  * @param {Object} timeObj
@@ -258,6 +277,7 @@ module.exports = {
   getImageUrl,
   calcTime,
   calcCheckInDayCount,
+  getEncouragement,
   formatTime,
   convertTimeZone,
   getYearMonthDay,
