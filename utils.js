@@ -1,4 +1,6 @@
 const get = require("lodash/get");
+const map = require("lodash/map");
+const uniq = require("lodash/uniqBy");
 const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
 
 /**
@@ -70,6 +72,42 @@ function calcTime(ms) {
   let hrs = Math.floor(mins / 60);
   mins = mins % 60;
   return { hrs, mins, secs };
+}
+
+/**
+ * Calculate how many unique days within an object list
+ * @param {Array} checkIns
+ * @return {Number} nUniqDays
+ */
+function calcCheckInDayCount(checkIns) {
+  const timestamps = map(checkIns, "startTime");
+  const days = map(timestamps, ts => {
+    const date = new Date(ts);
+    date.setUTCHours(18, 0, 0, 0);
+    return date.getTime();
+  });
+  const uniqDays = uniq(days);
+  const nUniqDays = uniqDays.length;
+  return nUniqDays;
+}
+
+/**
+ * Calculate the encouragement sentence based on
+ * the current days the user uses this bot
+ * @param {Number} currentDays
+ * @return {String} encouragement
+ */
+function getEncouragement(currentDays) {
+  if (currentDays < 3) {
+    return "再努力幾天，試著打滿3天吧！";
+  }
+  if (currentDays < 5) {
+    return "再努力幾天，往5天邁進！";
+  }
+  if (currentDays < 7) {
+    return "再撐一下，至少完成一週！";
+  }
+  return "";
 }
 
 /**
@@ -240,6 +278,8 @@ module.exports = {
   getTimeStamp,
   getImageUrl,
   calcTime,
+  calcCheckInDayCount,
+  getEncouragement,
   formatTime,
   convertTimeZone,
   getYearMonthDay,
