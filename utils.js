@@ -125,7 +125,7 @@ function getYearMonthDay(date) {
  */
 function getYearMonthDateForTimeZone(date, utcOffset = 0) {
   const momentDate = moment(date);
-  momentDate.utcOffset(timezoneOffset);
+  momentDate.utcOffset(utcOffset);
 
   return {
     year: momentDate.year(),
