@@ -1,3 +1,4 @@
+const moment = require("moment");
 const get = require("lodash/get");
 const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
 
@@ -116,6 +117,29 @@ function getYearMonthDay(date) {
     month: date.getMonth(),
     day: date.getDate(),
   };
+}
+
+/*
+ * @param date mement
+ * @param utcOffset int
+ */
+function getYearMonthDateForTimeZone(date, utcOffset = 0) {
+  const momentDate = moment(date);
+  momentDate.utcOffset(timezoneOffset);
+
+  return {
+    year: momentDate.year(),
+    month: momentDate.month(),
+    date: momentDate.date(),
+  };
+}
+
+/*
+ * @param date mement
+ * @param utcOffset int
+ */
+function getYearMonthDateForTaipei(date) {
+  return getYearMonthDateForTimeZone(date, 8);
 }
 
 /**
@@ -248,4 +272,6 @@ module.exports = {
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  getYearMonthDateForTimeZone,
+  getYearMonthDateForTaipei,
 };

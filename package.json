@@ -19,6 +19,7 @@
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",
     "lodash": "^4.17.4",
+    "moment": "^2.20.1",
     "mongodb": "2.2.33"
   },
   "devDependencies": {
