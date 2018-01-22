@@ -115,11 +115,21 @@ async function findOrCreateUserUrlKey(db, userId) {
   }
 }
 
+/**
+ * 計算上下班的人數。上班指的是 state.isWorking = true 的使用者數
+ * 下班指的是，過去 24 小時有打過卡的人數。總數：上班＋下班。
+ */
 async function getWorkingUserCount(db) {
   const sessions = db.collection("sessions");
-  const count = await sessions.count({ "_state.isWorking": true });
-  const total = await sessions.count();
-  return { count, total };
+  const checkIns = db.collection("checkIns");
+  const workingCount = await sessions.count({ "_state.isWorking": true });
+  const oneDayBefore = new Date(new Date().getTime() - 86400000);
+  // 當打卡數足夠多的時候，記得建 index
+  const offWorkUsers = await checkIns.distinct("userId", {
+    endTime: { $gt: oneDayBefore },
+  });
+  const offWorkCount = offWorkUsers.length;
+  return { workingCount, offWorkCount };
 }
 
 async function insertTextAsCorpus(db, userId, incomingText, ourReply) {

@@ -54,9 +54,6 @@ const handlers = [
   {
     handler: async (context, db, terminate) => {
       const init = {};
-      if (context.state.conversationCount === undefined) {
-        init.conversationCount = 0;
-      }
       if (context.state.seenTutorial === undefined) {
         init.seenTutorial = false;
       }
@@ -90,24 +87,6 @@ const handlers = [
     handler: async (context, db, terminate) => {
       context.resetState();
       terminate();
-    },
-  },
-  // send feedback forms per 15 conversations
-  {
-    handler: async (context, db, terminate) => {
-      context.setState({
-        conversationCount: context.state.conversationCount + 1,
-      });
-      if (context.state.conversationCount >= 15) {
-        await context.sendText(
-          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
-        );
-        await context.sendText(
-          "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
-          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
-        );
-        context.setState({ conversationCount: 0 });
-      }
     },
   },
   // handle get started
@@ -321,11 +300,7 @@ const handlers = [
       const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        `你目前已經打了${nUserCheckIns}天卡，${encouragement}相信記錄功德數也對你有幫助的！`
-      );
-
-      await context.sendText(
-        "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
+        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`,
         genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
       );
 
@@ -399,16 +374,17 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 50) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
           genQuickReply([{ type: P.CHECK_OUT }])
         );
       } else {
         await context.sendText(
-          `嗚，已經有${total - count}位（${100 - percent} %）的使用者下班了。`
+          `嗚，只剩 ${workingCount}位（${percent} %）的使用者下班了。`
         );
         await context.sendText(
           "知道你為了工作而努力奮鬥，辛苦了，趕緊回家好好休息，休息是為了走更長遠的路！",
@@ -433,11 +409,12 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 30) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
           genQuickReply([
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
@@ -445,8 +422,7 @@ const handlers = [
         );
       } else {
         await context.sendText(
-          `哦！ ${total - count}位（${100 -
-            percent} %）使用者已經下班了，真好真好！`
+          `唔！ 目前 ${workingCount}位（${percent} %）使用者在上班！`
         );
         await context.sendText(
           "明天記得也要上班打卡做功德喔 ^O^！",
