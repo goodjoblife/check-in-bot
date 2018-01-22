@@ -1,4 +1,6 @@
 const get = require("lodash/get");
+const map = require("lodash/map");
+const uniq = require("lodash/uniqBy");
 const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
 
 /**
@@ -78,13 +80,13 @@ function calcTime(ms) {
  * @return {Number} nUniqDays
  */
 function calcCheckInDayCount(checkIns) {
-  const timestamps = _.map(checkIns, "startTime");
-  const days = _.map(timestamps, ts => {
+  const timestamps = map(checkIns, "startTime");
+  const days = map(timestamps, ts => {
     const date = new Date(ts);
     date.setHours(0, 0, 0, 0);
     return date.getTime();
   });
-  const uniqDays = _.uniqBy(days);
+  const uniqDays = uniq(days);
   const nUniqDays = uniqDays.length;
   return nUniqDays;
 }

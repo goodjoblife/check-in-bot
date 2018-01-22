@@ -8,6 +8,7 @@ const {
   getImageUrl,
   calcTime,
   calcCheckInDayCount,
+  getEncouragement,
   formatTime,
   genQuickReply,
   genRandomReply,
