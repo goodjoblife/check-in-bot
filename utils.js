@@ -83,7 +83,7 @@ function calcCheckInDayCount(checkIns) {
   const timestamps = map(checkIns, "startTime");
   const days = map(timestamps, ts => {
     const date = new Date(ts);
-    date.setHours(0, 0, 0, 0);
+    date.setUTCHours(18, 0, 0, 0);
     return date.getTime();
   });
   const uniqDays = uniq(days);
