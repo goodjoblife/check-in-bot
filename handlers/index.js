@@ -320,9 +320,7 @@ const handlers = [
       const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        `你目前已經打了${nUserCheckIns}天卡${
-          encouragement ? `，${encouragement}` : ""
-        }相信記錄功德數也對你有幫助的！`
+        `你目前已經打了${nUserCheckIns}天卡，${encouragement}相信記錄功德數也對你有幫助的！`
       );
 
       await context.sendText(
