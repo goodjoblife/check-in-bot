@@ -107,7 +107,7 @@ function getEncouragement(currentDays) {
   if (currentDays < 7) {
     return "再撐一下，至少完成一週！";
   }
-  return "";
+  return "台灣的勞工真的 hen 棒～";
 }
 
 /**

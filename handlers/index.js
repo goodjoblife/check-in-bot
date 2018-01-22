@@ -300,11 +300,7 @@ const handlers = [
       const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        `你目前已經打了${nUserCheckIns}天卡，${encouragement}相信記錄功德數也對你有幫助的！`
-      );
-
-      await context.sendText(
-        "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
+        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`,
         genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
       );
 
