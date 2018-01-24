@@ -384,7 +384,7 @@ const handlers = [
         );
       } else {
         await context.sendText(
-          `嗚，只剩 ${workingCount}位（${percent} %）的使用者下班了。`
+          `嗚，只剩 ${workingCount}位（${percent} %）的使用者還沒下班。`
         );
         await context.sendText(
           "知道你為了工作而努力奮鬥，辛苦了，趕緊回家好好休息，休息是為了走更長遠的路！",
