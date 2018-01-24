@@ -20,6 +20,12 @@ const INIT_STATE = {
   imgUrls: [],
   seenTutorial: false,
   conversationCount: 0,
+  // for setting reminders
+  setReminderStep: 0,
+  reminderDays: [false, false, false, false, false, false, false], //[Sunday, Monday, Tuesday ... Saturaday]
+  reminderHour: null,
+  reminderMin: null,
+  reminderText: "",
 };
 
 // minimum and maximum length of check-in length to be accumulated
@@ -63,10 +69,27 @@ const PROMO_IMG_URLS = {
   },
 };
 
+//[Sunday, Monday, Tuesday ... Saturaday]
+const REMINDER_DAYS_MAPPING = {
+  週一到週五: [false, true, true, true, true, true, false],
+  週一: [false, true, false, false, false, false, false],
+  週二: [false, false, true, false, false, false, false],
+  週三: [false, false, false, true, false, false, false],
+  週四: [false, false, false, false, true, false, false],
+  週五: [false, false, false, false, false, true, false],
+  週六: [false, false, false, false, false, false, true],
+  週日: [true, false, false, false, false, false, false],
+};
+
+// reminder's minimum interval: 10 mins
+const MIN_TIME_INTERVAL = 10;
+
 module.exports = {
   PAYLOADS,
   INIT_STATE,
   CHECK_IN_LENGTH,
   RANDOM_REPLIES,
   PROMO_IMG_URLS,
+  REMINDER_DAYS_MAPPING,
+  MIN_TIME_INTERVAL,
 };

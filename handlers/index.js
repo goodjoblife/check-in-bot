@@ -3,17 +3,25 @@ const P = require("../constants").PAYLOADS;
 const FRONTEND_URL = require("config").FRONTEND_URL;
 
 const {
+  INIT_STATE,
+  REMINDER_DAYS_MAPPING,
+  MIN_TIME_INTERVAL,
+} = require("../constants");
+const {
   getLocation,
   getTimeStamp,
   getImageUrl,
   calcTime,
   calcCheckInDayCount,
   getEncouragement,
+  pad,
   formatTime,
   genQuickReply,
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  parseTime,
+  getClosestTime,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
 const {
@@ -22,6 +30,7 @@ const {
   findOrCreateUserUrlKey,
   getWorkingUserCount,
   insertTextAsCorpus,
+  setReminder,
 } = require("../db");
 
 const { createLoggingHandler } = require("./logging");
@@ -54,12 +63,11 @@ const handlers = [
   {
     handler: async (context, db, terminate) => {
       const init = {};
-      if (context.state.conversationCount === undefined) {
-        init.conversationCount = 0;
-      }
-      if (context.state.seenTutorial === undefined) {
-        init.seenTutorial = false;
-      }
+      Object.keys(INIT_STATE).forEach(key => {
+        if (context.state[key] === undefined) {
+          init[key] = INIT_STATE[key];
+        }
+      });
       context.setState(init);
     },
   },
@@ -194,6 +202,148 @@ const handlers = [
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。\n\n(請看完教學才能正常使用呦）",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
       );
+      terminate();
+    },
+  },
+  // handlers for setting reminders
+  {
+    event: [{ text: ["設定打卡提醒"] }],
+    handler: async (context, db, terminate) => {
+      context.setState({ setReminderStep: 1 });
+      const qrPayloads = [
+        { text: "週一到週五" },
+        { text: "週一" },
+        { text: "週二" },
+        { text: "週三" },
+        { text: "週四" },
+        { text: "週五" },
+        { text: "週六" },
+        { text: "週日" },
+      ];
+      await context.sendText("要在禮拜幾提醒你呢？", genQuickReply(qrPayloads));
+      terminate();
+    },
+  },
+  {
+    event: [
+      {
+        text: [
+          "週一到週五",
+          "週一",
+          "週二",
+          "週三",
+          "週四",
+          "週五",
+          "週六",
+          "週日",
+        ],
+      },
+    ],
+    state: [{ setReminderStep: 1 }],
+    handler: async (context, db, terminate) => {
+      const reminderDays = REMINDER_DAYS_MAPPING[context.event.text];
+      context.setState({
+        reminderDays,
+        setReminderStep: 2,
+      });
+      const qrPayloads = [
+        { text: "08:00" },
+        { text: "08:30" },
+        { text: "09:00" },
+        { text: "17:00" },
+        { text: "18:00" },
+        { text: "19:00" },
+      ];
+      await context.sendText(
+        "幾點幾分呢？\n可輸入 24 小時制的時間，例如：08:00、17:00、20:00。或按以下按鈕快速設定。",
+        genQuickReply(qrPayloads)
+      );
+      terminate();
+    },
+  },
+  {
+    event: [{ text: "放棄設定" }],
+    state: [{ setReminderStep: 2 }],
+    handler: async (context, db, terminate) => {
+      context.setState({ setReminderStep: 0 });
+      await context.sendText(
+        "也沒關係！ 那來試試看其他功能！",
+        genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+      );
+      terminate();
+    },
+  },
+  {
+    state: [{ setReminderStep: 2 }],
+    handler: async (context, db, terminate) => {
+      const parsedTime = parseTime(context.event.text);
+      if (parsedTime === null) {
+        const qrPayloads = [
+          { text: "08:00" },
+          { text: "08:30" },
+          { text: "09:00" },
+          { text: "17:00" },
+          { text: "18:00" },
+          { text: "19:00" },
+          { text: "放棄設定" },
+        ];
+        await context.sendText(
+          "糟糕，時間的格式好像有點小錯誤，請再重新輸入一次！\n是 24 小時制的時間，例如：08:00、17:00、20:00。",
+          genQuickReply(qrPayloads)
+        );
+      } else {
+        const time = getClosestTime(parsedTime, MIN_TIME_INTERVAL);
+        context.setState({
+          setReminderStep: 3,
+          reminderHour: time.hour,
+          reminderMin: time.min,
+        });
+        if (parsedTime.hour !== time.hour || parsedTime.min !== time.min) {
+          await context.sendText(
+            `考量伺服器效能，最小時間區間是 ${MIN_TIME_INTERVAL} 分鐘，所以設定成 ${pad(
+              time.hour,
+              2
+            )}:${pad(time.min, 2)} 噢！`
+          );
+        }
+        await context.sendText(
+          "請輸入一句提醒自己的話：\n(例如：上班做功德囉、下班陪家人去！)",
+          genQuickReply([
+            { text: "記得上班打卡！" },
+            { text: "記得下班打卡！" },
+          ])
+        );
+      }
+      terminate();
+    },
+  },
+  {
+    state: [{ setReminderStep: 3 }],
+    handler: async (context, db, terminate) => {
+      context.setState({
+        setReminderStep: 4,
+        reminderText: context.event.text,
+      });
+      const userData = {
+        id: context._session._id,
+        platformId: context._session.id,
+        platform: context._session.platform,
+      };
+      const reminderData = {
+        days: context.state.reminderDays,
+        hour: context.state.reminderHour,
+        min: context.state.reminderMin,
+        text: context.state.reminderText,
+      };
+      const success = await setReminder(db, userData, reminderData);
+      if (success) {
+        await context.sendText("恭喜你，成功設定打卡提醒！");
+      } else {
+        await context.sendText(
+          "糟糕，好像發生一點小錯誤，重新再試試看！",
+          genQuickReply([{ text: "設定打卡提醒" }])
+        );
+      }
       terminate();
     },
   },
