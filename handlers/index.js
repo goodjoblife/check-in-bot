@@ -54,9 +54,6 @@ const handlers = [
   {
     handler: async (context, db, terminate) => {
       const init = {};
-      if (context.state.conversationCount === undefined) {
-        init.conversationCount = 0;
-      }
       if (context.state.seenTutorial === undefined) {
         init.seenTutorial = false;
       }
@@ -90,24 +87,6 @@ const handlers = [
     handler: async (context, db, terminate) => {
       context.resetState();
       terminate();
-    },
-  },
-  // send feedback forms per 15 conversations
-  {
-    handler: async (context, db, terminate) => {
-      context.setState({
-        conversationCount: context.state.conversationCount + 1,
-      });
-      if (context.state.conversationCount >= 15) {
-        await context.sendText(
-          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
-        );
-        await context.sendText(
-          "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
-          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
-        );
-        context.setState({ conversationCount: 0 });
-      }
     },
   },
   // handle get started
@@ -321,11 +300,7 @@ const handlers = [
       const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        `你目前已經打了${nUserCheckIns}天卡，${encouragement}相信記錄功德數也對你有幫助的！`
-      );
-
-      await context.sendText(
-        "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
+        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`,
         genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
       );
 
