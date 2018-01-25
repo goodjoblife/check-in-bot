@@ -7,6 +7,7 @@ const config = require("config");
 
 const { convertTimeZone, getClosestTime, genQuickReply } = require("../utils");
 const { MIN_TIME_INTERVAL, PAYLOADS: P } = require("../constants");
+const REMINDER_MAX_SENDING_NUM = config.REMINDER_MAX_SENDING_NUM || 10;
 
 async function getReminders(db) {
   const now = new Date();
@@ -65,17 +66,17 @@ async function main() {
   const reminders = await getReminders(db);
 
   // send reminders one by one
-  let count = 0;
-  for (let reminder of reminders) {
-    const success = await sendRemindText(client, reminder);
-    if (success) {
-      count += 1;
+  let promiseQueue = [];
+  for (let [index, reminder] of reminders.entries()) {
+    if (promiseQueue.length < REMINDER_MAX_SENDING_NUM) {
+      promiseQueue.push(sendRemindText(client, reminder));
+    } else {
+      promiseQueue[index % REMINDER_MAX_SENDING_NUM].then(
+        sendRemindText(client, reminder)
+      );
     }
   }
-  console.log(
-    `Send ${count} reminders successfully. (Total: ${reminders.length})`
-  );
-
+  Promise.all(promiseQueue);
   await db.close();
 }
 
