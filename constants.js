@@ -21,10 +21,12 @@ const INIT_STATE = {
   seenTutorial: false,
   // for setting reminders
   setReminderStep: 0,
-  reminderDays: [false, false, false, false, false, false, false], //[Sunday, Monday, Tuesday ... Saturaday]
-  reminderHour: null,
-  reminderMin: null,
-  reminderText: "",
+  reminderData: {
+    days: [false, false, false, false, false, false, false], //[Sunday, Monday, Tuesday ... Saturaday]
+    hour: null,
+    min: null,
+    text: "",
+  },
 };
 
 // minimum and maximum length of check-in length to be accumulated

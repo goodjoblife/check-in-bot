@@ -223,9 +223,12 @@ const handlers = [
     ],
     state: [{ setReminderStep: 1 }],
     handler: async (context, db, terminate) => {
-      const reminderDays = REMINDER_DAYS_MAPPING[context.event.text];
+      const days = REMINDER_DAYS_MAPPING[context.event.text];
       context.setState({
-        reminderDays,
+        reminderData: {
+          ...context.state.reminderData,
+          days,
+        },
         setReminderStep: 2,
       });
       const qrPayloads = [
@@ -277,8 +280,11 @@ const handlers = [
         const time = getClosestTime(parsedTime, MIN_TIME_INTERVAL);
         context.setState({
           setReminderStep: 3,
-          reminderHour: time.hour,
-          reminderMin: time.min,
+          reminderData: {
+            ...context.state.reminderData,
+            hour: time.hour,
+            min: time.min,
+          },
         });
         if (parsedTime.hour !== time.hour || parsedTime.min !== time.min) {
           await context.sendText(
@@ -304,21 +310,18 @@ const handlers = [
     handler: async (context, db, terminate) => {
       context.setState({
         setReminderStep: 4,
-        reminderText: context.event.text,
+        reminderData: {
+          ...context.state.reminderData,
+          text: context.event.text,
+        },
       });
       const userData = {
         id: context._session._id,
         platformId: context._session.id,
         platform: context._session.platform,
       };
-      const reminderData = {
-        days: context.state.reminderDays,
-        hour: context.state.reminderHour,
-        min: context.state.reminderMin,
-        text: context.state.reminderText,
-      };
       try {
-        await setReminder(db, userData, reminderData);
+        await setReminder(db, userData, context.state.reminderData);
         await context.sendText("恭喜你，成功設定打卡提醒！");
       } catch (err) {
         await context.sendText(
