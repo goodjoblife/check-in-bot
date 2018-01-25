@@ -8,8 +8,6 @@ const config = require("config");
 const { convertTimeZone, getClosestTime, genQuickReply } = require("../utils");
 const { MIN_TIME_INTERVAL, PAYLOADS: P } = require("../constants");
 
-const DAY_MAPPING = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 async function getReminders(db) {
   const now = new Date();
   // convert to UTC+8 time zone
@@ -21,11 +19,11 @@ async function getReminders(db) {
     },
     MIN_TIME_INTERVAL
   );
-  const day = DAY_MAPPING[timeAtUTC8.getDay()];
+  const day = timeAtUTC8.getDay();
   return await db
     .collection("weeklyReminders")
     .find({
-      [day]: true,
+      [`days.${day}`]: true,
       hour: time.hour,
       min: time.min,
     })
@@ -77,7 +75,8 @@ async function main() {
   console.log(
     `Send ${count} reminders successfully. (Total: ${reminders.length})`
   );
-  process.exit();
+
+  await db.close();
 }
 
-main();
+main().catch(err => console.log(err));

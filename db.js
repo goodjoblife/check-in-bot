@@ -151,40 +151,27 @@ async function setReminder(db, userData, reminderData) {
 
   // check fields
   if (!id || !platformId || !platform) {
-    return false;
+    throw new Error("userData not defined");
   }
   if (days === undefined || hour === undefined || min === undefined || !text) {
-    return false;
+    throw new Error("reminderData not defined");
   }
   if (days.length !== 7) {
-    return false;
+    throw new Error("length of days array not equal to 7");
   }
-  for (let i = 0; i < 7; i += 1) {
-    if (days[i] !== true && days[i] !== false) {
-      return false;
-    }
+  if (!days.every(d => d === true || d === false)) {
+    throw new Error("days array should be either false or true");
   }
 
   const result = await db.collection("weeklyReminders").insertOne({
     userId: id,
     platformId,
     platform,
-    Sun: days[0],
-    Mon: days[1],
-    Tue: days[2],
-    Wed: days[3],
-    Thu: days[4],
-    Fri: days[5],
-    Sat: days[6],
+    days,
     hour,
     min,
     text,
   });
-  if (result) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 module.exports = {

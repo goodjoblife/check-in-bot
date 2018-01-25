@@ -317,14 +317,15 @@ const handlers = [
         min: context.state.reminderMin,
         text: context.state.reminderText,
       };
-      const success = await setReminder(db, userData, reminderData);
-      if (success) {
+      try {
+        await setReminder(db, userData, reminderData);
         await context.sendText("恭喜你，成功設定打卡提醒！");
-      } else {
+      } catch (err) {
         await context.sendText(
           "糟糕，好像發生一點小錯誤，重新再試試看！",
           genQuickReply([{ text: "設定打卡提醒" }])
         );
+        throw err;
       }
       terminate();
     },

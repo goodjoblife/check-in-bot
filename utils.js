@@ -302,8 +302,8 @@ function parseTime(timeStr) {
   if (m === null) {
     return null;
   }
-  let hour = parseInt(m[1], 10);
-  let min = parseInt(m[2], 10);
+  const hour = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
   if (hour < 0 || hour >= 24 || min < 0 || min >= 60) {
     return null;
   }
