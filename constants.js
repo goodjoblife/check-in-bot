@@ -19,7 +19,6 @@ const INIT_STATE = {
   locationTimestamp: null,
   imgUrls: [],
   seenTutorial: false,
-  conversationCount: 0,
   // for setting reminders
   setReminderStep: 0,
   reminderDays: [false, false, false, false, false, false, false], //[Sunday, Monday, Tuesday ... Saturaday]
