@@ -7,5 +7,5 @@ module.exports = {
   APP_SECRET: process.env.appSecret,
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
   CHATBASE_API_KEY: process.env.CHATBASE_API_KEY,
-  REMINDER_MAX_SENDING_NUM: process.env.REMINDER_MAX_SENDING_NUM,
+  REMINDER_MAX_SENDING_NUM: process.env.REMINDER_MAX_SENDING_NUM || 10,
 };

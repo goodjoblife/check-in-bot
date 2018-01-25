@@ -71,12 +71,12 @@ async function main() {
     if (promiseQueue.length < REMINDER_MAX_SENDING_NUM) {
       promiseQueue.push(sendRemindText(client, reminder));
     } else {
-      promiseQueue[index % REMINDER_MAX_SENDING_NUM].then(
+      promiseQueue[index % REMINDER_MAX_SENDING_NUM].then(() =>
         sendRemindText(client, reminder)
       );
     }
   }
-  Promise.all(promiseQueue);
+  await Promise.all(promiseQueue);
   await db.close();
 }
 
