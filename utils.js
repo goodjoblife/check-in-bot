@@ -1,7 +1,12 @@
 const get = require("lodash/get");
 const map = require("lodash/map");
 const uniq = require("lodash/uniqBy");
-const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
+const {
+  PAYLOADS: P,
+  RANDOM_REPLIES,
+  PROMO_IMG_URLS,
+  MIN_TIME_INTERVAL,
+} = require("./constants");
 
 /**
  * get location {lat, long} from Context object
@@ -108,6 +113,18 @@ function getEncouragement(currentDays) {
     return "再撐一下，至少完成一週！";
   }
   return "台灣的勞工真的 hen 棒～";
+}
+
+/**
+ *
+ * @param {*} n number to be padded
+ * @param {*} width total width of final string
+ * @param {*} z padding sign
+ */
+function pad(n, width, z) {
+  z = z || "0";
+  n = n + "";
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
 /**
@@ -273,6 +290,48 @@ function resetCheckInState(context) {
   });
 }
 
+/**
+ * parse time string to { hour, min } object if possible
+ * available format: "1:20" "01:20" "01:2" "01：20" " 01:20 "
+ * @param {String} timeStr
+ * @return {Object}
+ */
+function parseTime(timeStr) {
+  const regex = /\s*(\d{1,2})[:|：](\d{1,2})\s*/;
+  const m = timeStr.match(regex);
+  if (m === null) {
+    return null;
+  }
+  const hour = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (hour < 0 || hour >= 24 || min < 0 || min >= 60) {
+    return null;
+  }
+
+  return { hour, min };
+}
+
+/**
+ * get closest time interval by given time
+ * e.g. interval = 10, time = { hour: 23, min: 54 } => { hour: 23, min: 50 }
+ * @param {*} time
+ * @param {*} interval
+ */
+function getClosestTime(time, interval) {
+  if (!time) {
+    return null;
+  }
+  let { hour, min } = time;
+
+  // get closest interval
+  min = Math.round(min / interval) * interval;
+  if (min >= 60) {
+    min = 0;
+    hour = hour + 1 >= 24 ? 0 : hour + 1;
+  }
+  return { hour, min };
+}
+
 module.exports = {
   getLocation,
   getTimeStamp,
@@ -280,6 +339,7 @@ module.exports = {
   calcTime,
   calcCheckInDayCount,
   getEncouragement,
+  pad,
   formatTime,
   convertTimeZone,
   getYearMonthDay,
@@ -288,4 +348,6 @@ module.exports = {
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  parseTime,
+  getClosestTime,
 };
