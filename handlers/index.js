@@ -1,5 +1,6 @@
 const { middleware, MessengerHandler } = require("bottender");
 const P = require("../constants").PAYLOADS;
+const { tutorialHandler } = require("./tutorialHandler");
 const FRONTEND_URL = require("config").FRONTEND_URL;
 
 const {
@@ -107,6 +108,7 @@ const handlers = [
       terminate();
     },
   },
+  // TODO: splitted, remove it
   {
     state: [{ seenTutorial: false }],
     event: [{ text: "你是誰? 你可以幹嘛?" }],
@@ -118,6 +120,7 @@ const handlers = [
       terminate();
     },
   },
+  // TODO: splitted, remove it
   {
     state: [{ seenTutorial: false }],
     event: [{ text: "要怎麼使用？" }],
@@ -129,6 +132,7 @@ const handlers = [
       terminate();
     },
   },
+  // TODO: splitted, remove it
   {
     state: [{ seenTutorial: false }],
     event: [{ text: "那要怎麼下班？" }],
@@ -140,6 +144,7 @@ const handlers = [
       terminate();
     },
   },
+  // TODO: splitted, remove it
   {
     state: [{ seenTutorial: false }],
     event: [{ text: "就這樣？還有其他功能嗎？" }],
@@ -575,6 +580,7 @@ const createEventHandler = db => {
         await next();
       }
     },
+    tutorialHandler(db),
     mainHandler(db),
   ]);
 };
