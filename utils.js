@@ -233,6 +233,13 @@ function genQuickReply(payloads) {
             payload: P.VIEW_MY_WORKING_TIME,
           });
           break;
+        case P.VIEW_MY_REMINDERS:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "管理我的打卡提醒",
+            payload: P.VIEW_MY_REMINDERS,
+          });
+          break;
         case P.VIEW_TOTAL_WORKING_TIME:
           qrs.push({
             content_type: "text",
