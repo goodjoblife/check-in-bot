@@ -91,6 +91,7 @@ const handlers = [
     },
   },
   // handle get started
+  // TODO: not be splitted
   {
     event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
     handler: async (context, db, terminate) => {
