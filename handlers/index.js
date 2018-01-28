@@ -653,6 +653,8 @@ const handlers = [
     handler: async (context, db, terminate) => {
       const qrPayloads = [
         { type: P.VIEW_MY_WORKING_TIME },
+        { type: P.VIEW_MY_REMINDERS },
+        { type: P.SET_REMINDER },
         { type: P.VIEW_WORKING_USER_COUNT },
         { type: P.VIEW_TOTAL_WORKING_TIME },
       ];
