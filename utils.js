@@ -1,7 +1,10 @@
 const get = require("lodash/get");
 const map = require("lodash/map");
 const uniq = require("lodash/uniqBy");
+const R = require("ramda");
 const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
+
+const { path } = R;
 
 /**
  * get location {lat, long} from Context object
@@ -273,6 +276,12 @@ function resetCheckInState(context) {
   });
 }
 
+/**
+ * Generate quick reply payload
+ * @param {Object} context
+ */
+const getPostbackPayload = path(["event", "postback", "payload"]);
+
 module.exports = {
   getLocation,
   getTimeStamp,
@@ -288,4 +297,5 @@ module.exports = {
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  getPostbackPayload,
 };

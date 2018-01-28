@@ -1,5 +1,5 @@
 const { MessengerHandler } = require("bottender");
-const { haveSeenTutorial } = require("./helpers");
+const { haveSeenTutorial, isPostbackPayloadGetStarted } = require("./helpers");
 const { genQuickReply } = require("../../utils");
 const P = require("../../constants").PAYLOADS;
 
@@ -11,7 +11,7 @@ const childHandler = db =>
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
       );
     })
-    .onPostback(P.GET_STARTED, async context => {
+    .onPostback(isPostbackPayloadGetStarted, async context => {
       await context.sendText(
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
