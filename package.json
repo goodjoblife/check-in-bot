@@ -19,7 +19,8 @@
     "cors": "^2.8.4",
     "express-mongo-db": "^2.0.3",
     "lodash": "^4.17.4",
-    "mongodb": "2.2.33"
+    "mongodb": "2.2.33",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "bottender-context-simulator": "^0.0.1",

@@ -1,4 +1,5 @@
 const { MessengerHandler } = require("bottender");
+const { haveSeenTutorial } = require("./helpers");
 const { genQuickReply } = require("../../utils");
 const P = require("../../constants").PAYLOADS;
 
@@ -46,8 +47,8 @@ const childHandler = db =>
 const tutorialHandler = db => {
   const handler = childHandler(db);
   return async (context, next) => {
-    if (context.state.seenTutorial === false) {
-      return handler(context);
+    if (haveSeenTutorial(context)) {
+      return childHandler(db)(context);
     }
 
     await next();
