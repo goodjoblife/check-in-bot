@@ -68,6 +68,11 @@ module.exports = {
                   ],
                 },
                 {
+                  title: "設定打卡提醒",
+                  type: "postback",
+                  payload: "SET_REMINDER",
+                },
+                {
                   title: "意見回饋",
                   type: "web_url",
                   url: "https://goo.gl/forms/Lg77lCWsMZBXh7DH3",
