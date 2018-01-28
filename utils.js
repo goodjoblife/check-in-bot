@@ -261,6 +261,13 @@ function genQuickReply(payloads) {
             payload: P.SHOW_QUICK_REPLY_MENU,
           });
           break;
+        case P.SET_REMINDER:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "設定打卡提醒",
+            payload: P.SET_REMINDER,
+          });
+          break;
         default:
           break;
       }

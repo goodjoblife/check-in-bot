@@ -9,6 +9,7 @@ const PAYLOADS = {
   VIEW_TOTAL_WORKING_TIME: "VIEW_TOTAL_WORKING_TIME", // 查看全台總工時
   VIEW_WORKING_USER_COUNT: "VIEW_WORKING_USER_COUNT", // 查看還在工作的人數
   SHOW_QUICK_REPLY_MENU: "SHOW_QUICK_REPLY_MENU", // 顯示 quick reply 的功能表
+  SET_REMINDER: "SET_REMINDER", // 設定打卡提醒
 };
 
 // initial state for bot
