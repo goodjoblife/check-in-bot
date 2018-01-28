@@ -531,16 +531,17 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 50) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
           genQuickReply([{ type: P.CHECK_OUT }])
         );
       } else {
         await context.sendText(
-          `嗚，已經有${total - count}位（${100 - percent} %）的使用者下班了。`
+          `嗚，只剩 ${workingCount}位（${percent} %）的使用者還沒下班。`
         );
         await context.sendText(
           "知道你為了工作而努力奮鬥，辛苦了，趕緊回家好好休息，休息是為了走更長遠的路！",
@@ -565,11 +566,12 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 30) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
           genQuickReply([
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
@@ -577,8 +579,7 @@ const handlers = [
         );
       } else {
         await context.sendText(
-          `哦！ ${total - count}位（${100 -
-            percent} %）使用者已經下班了，真好真好！`
+          `唔！ 目前 ${workingCount}位（${percent} %）使用者在上班！`
         );
         await context.sendText(
           "明天記得也要上班打卡做功德喔 ^O^！",
