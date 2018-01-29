@@ -25,29 +25,57 @@ module.exports = {
               title: "功德無量打卡機功能表",
               call_to_actions: [
                 {
-                  title: "開始上班，做功德",
-                  type: "postback",
-                  payload: "CHECK_IN",
+                  type: "nested",
+                  title: "上下班、即時動態",
+                  call_to_actions: [
+                    {
+                      title: "開始上班，做功德",
+                      type: "postback",
+                      payload: "CHECK_IN",
+                    },
+                    {
+                      title: "下班了，不做了",
+                      type: "postback",
+                      payload: "CHECK_OUT",
+                    },
+                    {
+                      title: "現在多少人在做功德",
+                      type: "postback",
+                      payload: "VIEW_WORKING_USER_COUNT",
+                    },
+                    {
+                      title: "查看全台灣功德量",
+                      type: "web_url",
+                      url: "https://goodjoblife.github.io/check-in-frontend/#/",
+                      webview_height_ratio: "full",
+                    },
+                  ],
                 },
                 {
-                  title: "下班了，不做了",
-                  type: "postback",
-                  payload: "CHECK_OUT",
+                  type: "nested",
+                  title: "管理我的資料",
+                  call_to_actions: [
+                    {
+                      title: "查看我的工時紀錄",
+                      type: "postback",
+                      payload: "VIEW_MY_WORKING_TIME",
+                    },
+                    {
+                      title: "管理我的打卡提醒",
+                      type: "postback",
+                      payload: "VIEW_MY_REMINDERS",
+                    },
+                  ],
                 },
                 {
-                  title: "查看我的功德",
+                  title: "設定打卡提醒",
                   type: "postback",
-                  payload: "VIEW_MY_WORKING_TIME",
+                  payload: "SET_REMINDER",
                 },
                 {
-                  title: "現在多少人在做功德",
-                  type: "postback",
-                  payload: "VIEW_WORKING_USER_COUNT",
-                },
-                {
-                  title: "查看全台灣功德量",
+                  title: "意見回饋",
                   type: "web_url",
-                  url: "https://goodjoblife.github.io/check-in-frontend/#/",
+                  url: "https://goo.gl/forms/Lg77lCWsMZBXh7DH3",
                   webview_height_ratio: "full",
                 },
               ],
