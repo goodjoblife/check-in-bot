@@ -3,22 +3,34 @@ const P = require("../constants").PAYLOADS;
 const FRONTEND_URL = require("config").FRONTEND_URL;
 
 const {
+  INIT_STATE,
+  REMINDER_DAYS_MAPPING,
+  MIN_TIME_INTERVAL,
+} = require("../constants");
+const {
   getLocation,
   getTimeStamp,
   getImageUrl,
   calcTime,
+  calcCheckInDayCount,
+  getEncouragement,
+  pad,
   formatTime,
   genQuickReply,
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  parseTime,
+  getClosestTime,
 } = require("../utils");
 const { prepareCheckIn } = require("../models");
 const {
   insertCheckIn,
+  getUserCheckIns,
   findOrCreateUserUrlKey,
   getWorkingUserCount,
   insertTextAsCorpus,
+  setReminder,
 } = require("../db");
 
 const { createLoggingHandler } = require("./logging");
@@ -51,12 +63,11 @@ const handlers = [
   {
     handler: async (context, db, terminate) => {
       const init = {};
-      if (context.state.conversationCount === undefined) {
-        init.conversationCount = 0;
-      }
-      if (context.state.seenTutorial === undefined) {
-        init.seenTutorial = false;
-      }
+      Object.keys(INIT_STATE).forEach(key => {
+        if (context.state[key] === undefined) {
+          init[key] = INIT_STATE[key];
+        }
+      });
       context.setState(init);
     },
   },
@@ -87,24 +98,6 @@ const handlers = [
     handler: async (context, db, terminate) => {
       context.resetState();
       terminate();
-    },
-  },
-  // send feedback forms per 15 conversations
-  {
-    handler: async (context, db, terminate) => {
-      context.setState({
-        conversationCount: context.state.conversationCount + 1,
-      });
-      if (context.state.conversationCount >= 15) {
-        await context.sendText(
-          "看起來你似乎已經很瞭解如何使用打卡機器人了！\n請留下你的建議與回饋給我們，讓我們持續改進它！"
-        );
-        await context.sendText(
-          "回饋表單： https://goo.gl/forms/hhS8mh7xU9LJcvzH2",
-          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
-        );
-        context.setState({ conversationCount: 0 });
-      }
     },
   },
   // handle get started
@@ -191,6 +184,152 @@ const handlers = [
         "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。\n\n(請看完教學才能正常使用呦）",
         genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
       );
+      terminate();
+    },
+  },
+  // handlers for setting reminders
+  {
+    event: [{ text: ["設定打卡提醒"] }],
+    handler: async (context, db, terminate) => {
+      context.setState({ setReminderStep: 1 });
+      const qrPayloads = [
+        { text: "週一到週五" },
+        { text: "週一" },
+        { text: "週二" },
+        { text: "週三" },
+        { text: "週四" },
+        { text: "週五" },
+        { text: "週六" },
+        { text: "週日" },
+      ];
+      await context.sendText("要在禮拜幾提醒你呢？", genQuickReply(qrPayloads));
+      terminate();
+    },
+  },
+  {
+    event: [
+      {
+        text: [
+          "週一到週五",
+          "週一",
+          "週二",
+          "週三",
+          "週四",
+          "週五",
+          "週六",
+          "週日",
+        ],
+      },
+    ],
+    state: [{ setReminderStep: 1 }],
+    handler: async (context, db, terminate) => {
+      const days = REMINDER_DAYS_MAPPING[context.event.text];
+      context.setState({
+        reminderData: {
+          ...context.state.reminderData,
+          days,
+        },
+        setReminderStep: 2,
+      });
+      const qrPayloads = [
+        { text: "08:00" },
+        { text: "08:30" },
+        { text: "09:00" },
+        { text: "17:00" },
+        { text: "18:00" },
+        { text: "19:00" },
+      ];
+      await context.sendText(
+        "幾點幾分呢？\n可輸入 24 小時制的時間，例如：08:00、17:00、20:00。或按以下按鈕快速設定。",
+        genQuickReply(qrPayloads)
+      );
+      terminate();
+    },
+  },
+  {
+    event: [{ text: "放棄設定" }],
+    state: [{ setReminderStep: 2 }],
+    handler: async (context, db, terminate) => {
+      context.setState({ setReminderStep: 0 });
+      await context.sendText(
+        "也沒關係！ 那來試試看其他功能！",
+        genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
+      );
+      terminate();
+    },
+  },
+  {
+    state: [{ setReminderStep: 2 }],
+    handler: async (context, db, terminate) => {
+      const parsedTime = parseTime(context.event.text);
+      if (parsedTime === null) {
+        const qrPayloads = [
+          { text: "08:00" },
+          { text: "08:30" },
+          { text: "09:00" },
+          { text: "17:00" },
+          { text: "18:00" },
+          { text: "19:00" },
+          { text: "放棄設定" },
+        ];
+        await context.sendText(
+          "糟糕，時間的格式好像有點小錯誤，請再重新輸入一次！\n是 24 小時制的時間，例如：08:00、17:00、20:00。",
+          genQuickReply(qrPayloads)
+        );
+      } else {
+        const time = getClosestTime(parsedTime, MIN_TIME_INTERVAL);
+        context.setState({
+          setReminderStep: 3,
+          reminderData: {
+            ...context.state.reminderData,
+            hour: time.hour,
+            min: time.min,
+          },
+        });
+        if (parsedTime.hour !== time.hour || parsedTime.min !== time.min) {
+          await context.sendText(
+            `考量伺服器效能，最小時間區間是 ${MIN_TIME_INTERVAL} 分鐘，所以設定成 ${pad(
+              time.hour,
+              2
+            )}:${pad(time.min, 2)} 噢！`
+          );
+        }
+        await context.sendText(
+          "請輸入一句提醒自己的話：\n(例如：上班做功德囉、下班陪家人去！)",
+          genQuickReply([
+            { text: "記得上班打卡！" },
+            { text: "記得下班打卡！" },
+          ])
+        );
+      }
+      terminate();
+    },
+  },
+  {
+    state: [{ setReminderStep: 3 }],
+    handler: async (context, db, terminate) => {
+      context.setState({
+        setReminderStep: 4,
+        reminderData: {
+          ...context.state.reminderData,
+          text: context.event.text,
+        },
+      });
+      const userData = {
+        id: context._session._id,
+        platformId: context._session.id,
+        platform: context._session.platform,
+      };
+      try {
+        await setReminder(db, userData, context.state.reminderData);
+        await context.sendText("恭喜你，成功設定打卡提醒！");
+      } catch (err) {
+        await context.sendText(
+          "糟糕，好像發生一點小錯誤，重新再試試看！",
+          genQuickReply([{ text: "設定打卡提醒" }])
+        );
+        throw err;
+      }
       terminate();
     },
   },
@@ -313,8 +452,12 @@ const handlers = [
           calcTime(time)
         )} 的功德，已經存到台灣功德大數據資料庫內。`
       );
+
+      const userCheckIns = await getUserCheckIns(db, userId);
+      const nUserCheckIns = calcCheckInDayCount(userCheckIns);
+      const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        "台灣因為有你的功德，才能有今日亮眼的經濟成績。\n\n善哉善哉，讚嘆、感恩施主。",
+        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`,
         genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
       );
 
@@ -388,16 +531,17 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 50) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者和你一起在做功德呢！ 你並不孤單喔！`,
           genQuickReply([{ type: P.CHECK_OUT }])
         );
       } else {
         await context.sendText(
-          `嗚，已經有${total - count}位（${100 - percent} %）的使用者下班了。`
+          `嗚，只剩 ${workingCount}位（${percent} %）的使用者還沒下班。`
         );
         await context.sendText(
           "知道你為了工作而努力奮鬥，辛苦了，趕緊回家好好休息，休息是為了走更長遠的路！",
@@ -422,11 +566,12 @@ const handlers = [
       { payload: P.VIEW_WORKING_USER_COUNT },
     ],
     handler: async (context, db, terminate) => {
-      const { count, total } = await getWorkingUserCount(db);
-      const percent = Math.round(count / total * 100);
+      const { workingCount, offWorkCount } = await getWorkingUserCount(db);
+      const total = workingCount + offWorkCount;
+      const percent = Math.round(workingCount / total * 100);
       if (percent > 30) {
         await context.sendText(
-          `哇！ 現在還有 ${count}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
+          `哇！ 現在還有 ${workingCount}位（${percent} %）的使用者在做功德...。\n幸好你已經下班了，明天記得也要上班做功德喔 ^＿^`,
           genQuickReply([
             { type: P.VIEW_MY_WORKING_TIME },
             { type: P.CHECK_IN },
@@ -434,8 +579,7 @@ const handlers = [
         );
       } else {
         await context.sendText(
-          `哦！ ${total - count}位（${100 -
-            percent} %）使用者已經下班了，真好真好！`
+          `唔！ 目前 ${workingCount}位（${percent} %）使用者在上班！`
         );
         await context.sendText(
           "明天記得也要上班打卡做功德喔 ^O^！",

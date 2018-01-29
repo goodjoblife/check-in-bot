@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "reminder": "node ./cronjob/index.js",
     "dev": "nodemon index.js",
     "start": "node index.js",
     "lint": "eslint \"./**/*.js\"",
