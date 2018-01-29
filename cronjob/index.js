@@ -56,6 +56,7 @@ async function sendRemindText(client, reminder) {
 }
 
 async function main() {
+  console.log("=== Start ===");
   // connect to database
   const db = await MongoClient.connect(config.MONGODB_URI);
 
@@ -64,6 +65,7 @@ async function main() {
 
   // get all reminders to be sent
   const reminders = await getReminders(db);
+  console.log(reminders.length);
 
   // send reminders one by one
   let promiseQueue = [];
@@ -78,6 +80,7 @@ async function main() {
   }
   await Promise.all(promiseQueue);
   await db.close();
+  console.log("=== Done ===");
 }
 
 main().catch(err => console.log(err));
