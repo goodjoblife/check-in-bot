@@ -1,0 +1,7 @@
+[Unit]
+Description=Remind check-in-bot user
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ubuntu/check-in-bot.goodjob.life
+ExecStart=/usr/local/bin/docker-compose exec -T node npm run reminder
