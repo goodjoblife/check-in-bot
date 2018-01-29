@@ -189,7 +189,11 @@ const handlers = [
   },
   // handlers for setting reminders
   {
-    event: [{ text: ["設定打卡提醒"] }],
+    event: [
+      { text: ["設定打卡提醒"] },
+      { postbackPayload: P.SET_REMINDER },
+      { payload: P.SET_REMINDER },
+    ],
     handler: async (context, db, terminate) => {
       context.setState({ setReminderStep: 1 });
       const qrPayloads = [
@@ -202,6 +206,10 @@ const handlers = [
         { text: "週六" },
         { text: "週日" },
       ];
+      await context.sendText(
+        "打卡提醒就像鬧鐘一樣，會在你指定的時間主動丟訊息給你，提醒你要打卡上班/下班！"
+      );
+      await context.sendText("一個提醒如果不夠用，可以設定很多個喔！");
       await context.sendText("要在禮拜幾提醒你呢？", genQuickReply(qrPayloads));
       terminate();
     },
@@ -322,7 +330,20 @@ const handlers = [
       };
       try {
         await setReminder(db, userData, context.state.reminderData);
+        const userId = context._session._id;
+        const urlKey = await findOrCreateUserUrlKey(db, userId);
+        const url = `${FRONTEND_URL}/#/reminders/${urlKey}`;
         await context.sendText("恭喜你，成功設定打卡提醒！");
+        await context.sendButtonTemplate(
+          "點擊下方按鈕，你可以看到你所有的打卡提醒，並可以進行刪除",
+          [
+            {
+              type: "web_url",
+              url,
+              title: "打開",
+            },
+          ]
+        );
       } catch (err) {
         await context.sendText(
           "糟糕，好像發生一點小錯誤，重新再試試看！",
@@ -457,8 +478,15 @@ const handlers = [
       const nUserCheckIns = calcCheckInDayCount(userCheckIns);
       const encouragement = getEncouragement(nUserCheckIns);
       await context.sendText(
-        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`,
-        genQuickReply([{ type: P.VIEW_MY_WORKING_TIME }, { type: P.CHECK_IN }])
+        `你已經打了${nUserCheckIns}天的卡\n${encouragement}`
+      );
+      await context.sendText(
+        "這時候，你可以查看你的打卡記錄。\n\n或是，會擔心忘記打卡嗎？ 馬上來設定打卡提醒！",
+        genQuickReply([
+          { type: P.VIEW_MY_WORKING_TIME },
+          { type: P.SET_REMINDER },
+          { type: P.CHECK_IN },
+        ])
       );
 
       // reset check-in state
@@ -490,6 +518,29 @@ const handlers = [
       await context.sendText(
         "噓！肥水不落外人田，不要隨便給別人看呀！",
         genQuickReply(qrPayloads)
+      );
+      terminate();
+    },
+  },
+  {
+    event: [
+      { text: ["查看我的打卡提醒", "管理我的打卡提醒"] },
+      { postbackPayload: P.VIEW_MY_REMINDERS },
+      { payload: P.VIEW_MY_REMINDERS },
+    ],
+    handler: async (context, db, terminate) => {
+      const userId = context._session._id;
+      const urlKey = await findOrCreateUserUrlKey(db, userId);
+      const url = `${FRONTEND_URL}/#/reminders/${urlKey}`;
+      await context.sendButtonTemplate(
+        "點擊下方按鈕，你可以看到你所有的打卡提醒，並可以進行刪除",
+        [
+          {
+            type: "web_url",
+            url,
+            title: "打開",
+          },
+        ]
       );
       terminate();
     },
@@ -602,6 +653,8 @@ const handlers = [
     handler: async (context, db, terminate) => {
       const qrPayloads = [
         { type: P.VIEW_MY_WORKING_TIME },
+        { type: P.VIEW_MY_REMINDERS },
+        { type: P.SET_REMINDER },
         { type: P.VIEW_WORKING_USER_COUNT },
         { type: P.VIEW_TOTAL_WORKING_TIME },
       ];

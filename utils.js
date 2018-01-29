@@ -233,6 +233,13 @@ function genQuickReply(payloads) {
             payload: P.VIEW_MY_WORKING_TIME,
           });
           break;
+        case P.VIEW_MY_REMINDERS:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "管理我的打卡提醒",
+            payload: P.VIEW_MY_REMINDERS,
+          });
+          break;
         case P.VIEW_TOTAL_WORKING_TIME:
           qrs.push({
             content_type: "text",
@@ -252,6 +259,13 @@ function genQuickReply(payloads) {
             content_type: "text",
             title: p.text || "顯示功能表",
             payload: P.SHOW_QUICK_REPLY_MENU,
+          });
+          break;
+        case P.SET_REMINDER:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "設定打卡提醒",
+            payload: P.SET_REMINDER,
           });
           break;
         default:
