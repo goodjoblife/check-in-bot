@@ -1,6 +1,7 @@
 const get = require("lodash/get");
 const map = require("lodash/map");
 const uniq = require("lodash/uniqBy");
+const R = require("ramda");
 const {
   PAYLOADS: P,
   RANDOM_REPLIES,
