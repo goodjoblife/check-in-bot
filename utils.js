@@ -1,8 +1,12 @@
 const get = require("lodash/get");
 const map = require("lodash/map");
 const uniq = require("lodash/uniqBy");
-const R = require("ramda");
-const { PAYLOADS: P, RANDOM_REPLIES, PROMO_IMG_URLS } = require("./constants");
+const {
+  PAYLOADS: P,
+  RANDOM_REPLIES,
+  PROMO_IMG_URLS,
+  MIN_TIME_INTERVAL,
+} = require("./constants");
 
 const { path } = R;
 
@@ -114,6 +118,18 @@ function getEncouragement(currentDays) {
 }
 
 /**
+ *
+ * @param {*} n number to be padded
+ * @param {*} width total width of final string
+ * @param {*} z padding sign
+ */
+function pad(n, width, z) {
+  z = z || "0";
+  n = n + "";
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
+/**
  * Format { hrs, mins, secs } object into readable string
  * e.g. { hrs: 1, mins: 1, secs: 1} => 1小時 1分鐘
  * @param {Object} timeObj
@@ -219,6 +235,13 @@ function genQuickReply(payloads) {
             payload: P.VIEW_MY_WORKING_TIME,
           });
           break;
+        case P.VIEW_MY_REMINDERS:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "管理我的打卡提醒",
+            payload: P.VIEW_MY_REMINDERS,
+          });
+          break;
         case P.VIEW_TOTAL_WORKING_TIME:
           qrs.push({
             content_type: "text",
@@ -238,6 +261,13 @@ function genQuickReply(payloads) {
             content_type: "text",
             title: p.text || "顯示功能表",
             payload: P.SHOW_QUICK_REPLY_MENU,
+          });
+          break;
+        case P.SET_REMINDER:
+          qrs.push({
+            content_type: "text",
+            title: p.text || "設定打卡提醒",
+            payload: P.SET_REMINDER,
           });
           break;
         default:
@@ -276,11 +306,49 @@ function resetCheckInState(context) {
   });
 }
 
-/**
- * Generate quick reply payload
- * @param {Object} context
- */
 const getPostbackPayload = path(["event", "postback", "payload"]);
+
+/**
+ * parse time string to { hour, min } object if possible
+ * available format: "1:20" "01:20" "01:2" "01：20" " 01:20 "
+ * @param {String} timeStr
+ * @return {Object}
+ */
+function parseTime(timeStr) {
+  const regex = /\s*(\d{1,2})[:|：](\d{1,2})\s*/;
+  const m = timeStr.match(regex);
+  if (m === null) {
+    return null;
+  }
+  const hour = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (hour < 0 || hour >= 24 || min < 0 || min >= 60) {
+    return null;
+  }
+
+  return { hour, min };
+}
+
+/**
+ * get closest time interval by given time
+ * e.g. interval = 10, time = { hour: 23, min: 54 } => { hour: 23, min: 50 }
+ * @param {*} time
+ * @param {*} interval
+ */
+function getClosestTime(time, interval) {
+  if (!time) {
+    return null;
+  }
+  let { hour, min } = time;
+
+  // get closest interval
+  min = Math.round(min / interval) * interval;
+  if (min >= 60) {
+    min = 0;
+    hour = hour + 1 >= 24 ? 0 : hour + 1;
+  }
+  return { hour, min };
+}
 
 module.exports = {
   getLocation,
@@ -289,6 +357,7 @@ module.exports = {
   calcTime,
   calcCheckInDayCount,
   getEncouragement,
+  pad,
   formatTime,
   convertTimeZone,
   getYearMonthDay,
@@ -298,4 +367,6 @@ module.exports = {
   getTodayPromoteImage,
   resetCheckInState,
   getPostbackPayload,
+  parseTime,
+  getClosestTime,
 };

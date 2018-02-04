@@ -1,0 +1,9 @@
+[Unit]
+Description=Remind client every 10 min
+
+[Timer]
+OnCalendar=*-*-* *:0/10
+Unit=check-in-bot-reminder.service
+
+[Install]
+WantedBy=timers.target

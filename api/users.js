@@ -59,4 +59,57 @@ router.delete(
   })
 );
 
+router.get(
+  "/:key/weekly-reminders",
+  wrap(async (req, res) => {
+    const users = req.db.collection("users");
+    const urlKey = req.params.key;
+
+    const user = await users.findOne({ urlKey });
+    if (user) {
+      const weeklyReminders = req.db.collection("weeklyReminders");
+      const result = await weeklyReminders
+        .find(
+          { userId: user._id },
+          {
+            userId: 0,
+            platform: 0,
+            platformId: 0,
+          }
+        )
+        .toArray();
+      res.send(result);
+    } else {
+      res.send([]);
+    }
+  })
+);
+
+router.delete(
+  "/:key/weekly-reminders/:reminderId",
+  wrap(async (req, res) => {
+    const users = req.db.collection("users");
+    const weeklyReminders = req.db.collection("weeklyReminders");
+    const urlKey = req.params.key;
+    const reminderId = req.params.reminderId;
+    const user = await users.findOne({ urlKey });
+    const reminder = await weeklyReminders.findOne({
+      _id: new ObjectId(reminderId),
+    });
+
+    if (user && user._id && reminder && reminder.userId) {
+      if (user._id.toString() === reminder.userId.toString()) {
+        const result = await weeklyReminders.deleteOne({
+          _id: new ObjectId(reminderId),
+        });
+        if (result.result.ok === 1) {
+          res.send({ success: true });
+          return;
+        }
+      }
+    }
+    res.send({ success: false });
+  })
+);
+
 module.exports = router;

@@ -15,6 +15,25 @@ jobs:
             - run:
                 name: Lint
                 command: npm run lint
+    build-docker:
+        working_directory: ~/app
+        docker:
+            - image: docker:latest
+        steps:
+            - checkout
+            - run:
+                name: Install Docker Compose
+                command: ./.circleci/prepare-docker-compose.sh
+            - setup_remote_docker
+            - run:
+                name: Build Docker Image
+                command: docker-compose -f .circleci/docker-compose.yml build
+            - deploy:
+                name: Deploy docker image
+                command: |
+                    if [ "${CIRCLE_PROJECT_USERNAME}" == "goodjoblife" ]; then
+                        ./.circleci/deploy-docker.sh
+                    fi
     deploy-production:
         working_directory: ~/app
         docker:
@@ -33,7 +52,16 @@ workflows:
     build_and_test:
         jobs:
             - test
+            - build-docker:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - test
             - deploy-production:
                 filters:
                     branches:
                         only: master
+                requires:
+                    - build-docker
