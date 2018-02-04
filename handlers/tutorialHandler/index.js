@@ -1,5 +1,8 @@
 const { MessengerHandler } = require("bottender");
-const { haveSeenTutorial, isPostbackPayloadGetStarted } = require("./helpers");
+const {
+  haveNotSeenTutorial,
+  isPostbackPayloadGetStarted,
+} = require("./helpers");
 const { genQuickReply } = require("../../utils");
 const P = require("../../constants").PAYLOADS;
 
@@ -47,8 +50,8 @@ const childHandler = db =>
 const tutorialHandler = db => {
   const handler = childHandler(db);
   return async (context, next) => {
-    if (haveSeenTutorial(context)) {
-      return childHandler(db)(context);
+    if (haveNotSeenTutorial(context)) {
+      return handler(context);
     }
 
     await next();

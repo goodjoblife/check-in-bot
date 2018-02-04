@@ -3,7 +3,7 @@ const { path, equals, compose } = R;
 const P = require("../../constants").PAYLOADS;
 const { genQuickReply, getPostbackPayload } = require("../../utils");
 
-const haveSeenTutorial = compose(
+const haveNotSeenTutorial = compose(
   equals(false),
   path(["state", "seenTutorial"])
 );
