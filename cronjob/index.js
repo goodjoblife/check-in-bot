@@ -4,6 +4,7 @@
 const { MessengerClient } = require("messaging-api-messenger");
 const MongoClient = require("mongodb").MongoClient;
 const config = require("config");
+const map = require("lodash").map;
 
 const { convertTimeZone, getClosestTime, genQuickReply } = require("../utils");
 const { MIN_TIME_INTERVAL, PAYLOADS: P } = require("../constants");
@@ -32,13 +33,14 @@ async function getReminders(db) {
 }
 
 // currently only support messenger platform
-async function sendRemindText(client, reminder) {
+async function sendRemindText(client, reminder, workingStatusOfOthers) {
   const { platformId, text } = reminder;
   if (!platformId || !text) {
     return false;
   } else {
     const id = platformId.split(":")[1];
     try {
+      await client.sendText(id, workingStatusOfOthers.message);
       await client.sendText(
         id,
         `打卡提醒： ${text}`,
@@ -55,6 +57,60 @@ async function sendRemindText(client, reminder) {
   }
 }
 
+async function getWorkingUserIds(db, fromTime, toTime) {
+  const sessions = await db
+    .collection("sessions")
+    .find({
+      "_state.startTime": {
+        $gt: fromTime,
+        $lt: toTime,
+      },
+    })
+    .toArray();
+  const userIds = map(sessions, "_id");
+  return userIds;
+}
+
+async function getOffDutyUserIds(db, fromTime, toTime) {
+  const checkIns = await db
+    .collection("checkIns")
+    .find({
+      startTime: {
+        $gt: fromTime,
+        $lt: toTime,
+      },
+    })
+    .toArray();
+  const userIds = map(checkIns, "userId");
+  return userIds;
+}
+
+async function getWorkingStatusOfOthers(db) {
+  const now = Date.now();
+  const fromTime = new Date(now - 1000 * 60 * 60 * 10); // 10 hours ago
+  const toTime = new Date(now - 1000 * 60 * 60 * 8); // 8 hours ago
+
+  const workingUserIds = await getWorkingUserIds(db, fromTime, toTime);
+  const offDutyUserIds = await getOffDutyUserIds(db, fromTime, toTime);
+
+  const nWorkingUsers = workingUserIds.length;
+  const nOffDutyUsers = offDutyUserIds.length;
+  const nUsers = nWorkingUsers + nOffDutyUsers;
+
+  const dayOffRatio = nOffDutyUsers / nUsers * 100;
+
+  const message = `目前8小時前上班的 ${nUsers} 位使用者中，已經有 ${nOffDutyUsers}人 (${dayOffRatio.toFixed(
+    0
+  )}%) 下班啦！`;
+
+  return {
+    nWorkingUsers,
+    nOffDutyUsers,
+    nUsers,
+    message,
+  };
+}
+
 async function main() {
   console.log("=== Start ===");
   // connect to database
@@ -67,15 +123,20 @@ async function main() {
   const reminders = await getReminders(db);
   console.log(reminders.length);
 
+  // get working status for broadcasing
+  const workingStatusOfOthers = await getWorkingStatusOfOthers(db);
+
   // send reminders one by one
   let promiseQueue = [];
   for (let [index, reminder] of reminders.entries()) {
     if (promiseQueue.length < REMINDER_MAX_SENDING_NUM) {
-      promiseQueue.push(sendRemindText(client, reminder));
+      promiseQueue.push(
+        sendRemindText(client, reminder, workingStatusOfOthers)
+      );
     } else {
       const modIndex = index % REMINDER_MAX_SENDING_NUM;
       promiseQueue[modIndex] = promiseQueue[modIndex].then(() =>
-        sendRemindText(client, reminder)
+        sendRemindText(client, reminder, workingStatusOfOthers)
       );
     }
   }
