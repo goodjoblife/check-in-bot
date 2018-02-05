@@ -73,7 +73,8 @@ async function main() {
     if (promiseQueue.length < REMINDER_MAX_SENDING_NUM) {
       promiseQueue.push(sendRemindText(client, reminder));
     } else {
-      promiseQueue[index % REMINDER_MAX_SENDING_NUM].then(() =>
+      const modIndex = index % REMINDER_MAX_SENDING_NUM;
+      promiseQueue[modIndex] = promiseQueue[modIndex].then(() =>
         sendRemindText(client, reminder)
       );
     }
