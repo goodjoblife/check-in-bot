@@ -41,7 +41,9 @@ async function sendRemindText(client, reminder, workingStatusOfOthers) {
   } else {
     const id = platformId.split(":")[1];
     try {
-      await client.sendText(id, workingStatusOfOthers.message);
+      if (workingStatusOfOthers.nUsers) {
+        await client.sendText(id, workingStatusOfOthers.message);
+      }
       await client.sendText(
         id,
         `打卡提醒： ${text}`,
