@@ -5,6 +5,7 @@ const { MessengerClient } = require("messaging-api-messenger");
 const MongoClient = require("mongodb").MongoClient;
 const config = require("config");
 const map = require("lodash").map;
+const difference = require("lodash").difference;
 
 const { convertTimeZone, getClosestTime, genQuickReply } = require("../utils");
 const { MIN_TIME_INTERVAL, PAYLOADS: P } = require("../constants");
@@ -90,8 +91,13 @@ async function getWorkingStatusOfOthers(db) {
   const fromTime = new Date(now - 1000 * 60 * 60 * 10); // 10 hours ago
   const toTime = new Date(now - 1000 * 60 * 60 * 8); // 8 hours ago
 
-  const workingUserIds = await getWorkingUserIds(db, fromTime, toTime);
-  const offDutyUserIds = await getOffDutyUserIds(db, fromTime, toTime);
+  let workingUserIds = await getWorkingUserIds(db, fromTime, toTime);
+  let offDutyUserIds = await getOffDutyUserIds(db, fromTime, toTime);
+
+  // For users in both working and off-duty lists
+  // assume them still in working status
+  // (i.e. remove them from off-duty list)
+  offDutyUserIds = difference(offDutyUserIds, workingUserIds);
 
   const nWorkingUsers = workingUserIds.length;
   const nOffDutyUsers = offDutyUserIds.length;
