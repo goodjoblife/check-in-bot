@@ -14,6 +14,6 @@ const isPostbackPayloadGetStarted = compose(
 );
 
 module.exports = {
-  haveSeenTutorial,
+  haveNotSeenTutorial,
   isPostbackPayloadGetStarted,
 };
