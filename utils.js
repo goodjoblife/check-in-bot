@@ -1,12 +1,15 @@
 const get = require("lodash/get");
 const map = require("lodash/map");
 const uniq = require("lodash/uniqBy");
+const R = require("ramda");
 const {
   PAYLOADS: P,
   RANDOM_REPLIES,
   PROMO_IMG_URLS,
   MIN_TIME_INTERVAL,
 } = require("./constants");
+
+const { path } = R;
 
 /**
  * get location {lat, long} from Context object
@@ -304,6 +307,8 @@ function resetCheckInState(context) {
   });
 }
 
+const getPostbackPayload = path(["event", "postback", "payload"]);
+
 /**
  * parse time string to { hour, min } object if possible
  * available format: "1:20" "01:20" "01:2" "01：20" " 01:20 "
@@ -362,6 +367,7 @@ module.exports = {
   genRandomReply,
   getTodayPromoteImage,
   resetCheckInState,
+  getPostbackPayload,
   parseTime,
   getClosestTime,
 };

@@ -1,5 +1,6 @@
 const { middleware, MessengerHandler } = require("bottender");
 const P = require("../constants").PAYLOADS;
+const { tutorialHandler } = require("./tutorialHandler");
 const FRONTEND_URL = require("config").FRONTEND_URL;
 
 const {
@@ -104,61 +105,9 @@ const handlers = [
   {
     event: [{ postbackPayload: P.GET_STARTED }, { payload: P.GET_STARTED }],
     handler: async (context, db, terminate) => {
-      if (context.state.seenTutorial) {
-        await context.sendText(
-          "來呦，功能表在這！",
-          genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
-        );
-      } else {
-        await context.sendText(
-          "嗨嗨你好，我是功德無量打卡機本人，請叫我阿德就好。",
-          genQuickReply([{ text: "你是誰? 你可以幹嘛?" }])
-        );
-      }
-      terminate();
-    },
-  },
-  {
-    state: [{ seenTutorial: false }],
-    event: [{ text: "你是誰? 你可以幹嘛?" }],
-    handler: async (context, db, terminate) => {
       await context.sendText(
-        "我是一個打卡機，我可以幫你：\n\n- 紀錄工時\n- 計算應該拿到的加班費\n\n還有... 製造滿滿的功德",
-        genQuickReply([{ text: "要怎麼使用？" }])
-      );
-      terminate();
-    },
-  },
-  {
-    state: [{ seenTutorial: false }],
-    event: [{ text: "要怎麼使用？" }],
-    handler: async (context, db, terminate) => {
-      await context.sendText(
-        "很簡單，按下「上班，做功德」，就會開始記錄你的工時，你的功德就會源源不絕地產生囉^^",
-        genQuickReply([{ text: "那要怎麼下班？" }])
-      );
-      terminate();
-    },
-  },
-  {
-    state: [{ seenTutorial: false }],
-    event: [{ text: "那要怎麼下班？" }],
-    handler: async (context, db, terminate) => {
-      await context.sendText(
-        "按下「下班，不做了」，就會結束記錄你的工時囉！",
-        genQuickReply([{ text: "就這樣？還有其他功能嗎？" }])
-      );
-      terminate();
-    },
-  },
-  {
-    state: [{ seenTutorial: false }],
-    event: [{ text: "就這樣？還有其他功能嗎？" }],
-    handler: async (context, db, terminate) => {
-      context.setState({ seenTutorial: true });
-      await context.sendText(
-        "當然有，你還可以：\n\n - 查看你的每一筆工時，而且加班費都幫你算好了喔\n\n - 查看今天台灣人已經累積多少功德\n\n - 上下班即時動態，看現在還有多少人在做功德 \n\n (教學完畢)",
-        genQuickReply([{ text: "好，我懂了，開始使用！" }])
+        "來呦，功能表在這！",
+        genQuickReply([{ type: P.SHOW_QUICK_REPLY_MENU }])
       );
       terminate();
     },
@@ -786,6 +735,7 @@ const createEventHandler = db => {
         await next();
       }
     },
+    tutorialHandler(db),
     mainHandler(db),
   ]);
 };
